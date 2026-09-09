@@ -1,0 +1,22 @@
+{
+  "runtime_checks": [
+    {
+      "id": "unit-tests",
+      "argv": [".venv/bin/python", "-m", "pytest", "tests/", "-q"],
+      "timeout_s": 180,
+      "paths": ["fly_pong/**", "tests/**", "public/**", "shared/**", "scripts/**", "requirements.txt", "vbd.runtime.json", "README.md"]
+    },
+    {
+      "id": "site-assets",
+      "argv": [".venv/bin/python", "-m", "pytest", "tests/test_site.py", "-q"],
+      "timeout_s": 60,
+      "paths": ["public/**", "shared/**", "README.md"]
+    },
+    {
+      "id": "viewport",
+      "argv": [".venv/bin/python", "scripts/viewport_sanity.py"],
+      "timeout_s": 90,
+      "paths": ["public/**"]
+    }
+  ]
+}

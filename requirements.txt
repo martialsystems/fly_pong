@@ -1,0 +1,8 @@
+gymnasium>=0.29.1
+pygame>=2.5.2
+numpy>=1.26.0
+stable-baselines3>=2.3.0
+torch
+onnx
+onnxruntime
+pytest>=8.0

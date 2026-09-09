@@ -1,0 +1,173 @@
+:root {
+  color-scheme: dark;
+  --bg: #08080c;
+  --panel: #12121a;
+  --ink: #ececf4;
+  --muted: #9a9ab0;
+  --accent: #ffd250;
+  --line: #2a2a3a;
+  --btn: #1c1c28;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.wrap {
+  width: min(720px, 100%);
+  margin: 0 auto;
+  padding: 16px 16px 32px;
+}
+
+header h1 {
+  margin: 0 0 4px;
+  font-size: 1.6rem;
+  letter-spacing: 0.02em;
+}
+
+.lede,
+.hint,
+#ai-status {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.scoreboard {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: 12px 0;
+  font-variant-numeric: tabular-nums;
+}
+
+#score {
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.play {
+  display: grid;
+  gap: 16px;
+}
+
+.stage {
+  min-width: 0;
+}
+
+.court-wrap {
+  background: #000;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+#court {
+  display: block;
+  width: 100%;
+  height: auto;
+  touch-action: none;
+  cursor: ns-resize;
+}
+
+.controls {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 14px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+button {
+  background: var(--btn);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font: inherit;
+  cursor: pointer;
+}
+
+button:hover,
+button:focus-visible {
+  border-color: var(--accent);
+  outline: none;
+}
+
+#start {
+  background: var(--accent);
+  color: #111;
+  font-weight: 700;
+}
+
+label.skill {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+}
+
+input[type="range"] {
+  width: 100%;
+}
+
+.hint {
+  margin: 0;
+}
+
+footer {
+  margin-top: 24px;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+footer a {
+  color: var(--accent);
+}
+
+@media (min-width: 900px) {
+  .wrap {
+    width: min(1100px, 100%);
+  }
+  .play {
+    grid-template-columns: minmax(0, 1fr) 280px;
+    align-items: start;
+  }
+  .controls {
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 420px) {
+  header h1 {
+    font-size: 1.3rem;
+  }
+  #score {
+    font-size: 1.4rem;
+  }
+  .wrap {
+    padding: 12px 10px 24px;
+  }
+}

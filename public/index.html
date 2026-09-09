@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Fly Pong</title>
+  <meta name="description" content="Play Pong against a small neural policy running in your browser." />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Fly Pong</h1>
+      <p class="lede">You are the left paddle. The right paddle is a 6-input policy trained offline and frozen as ONNX. Inference stays in this page.</p>
+    </header>
+    <div class="play">
+      <div class="stage">
+        <div class="scoreboard">
+          <div id="score">0  0</div>
+          <div id="ai-status">AI: loading</div>
+        </div>
+        <div class="court-wrap">
+          <canvas id="court" width="480" height="360" aria-label="Pong court"></canvas>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="row">
+          <button type="button" id="start">Start</button>
+          <button type="button" id="reset">Reset</button>
+          <button type="button" data-preset="easy">Easy</button>
+          <button type="button" data-preset="normal">Normal</button>
+          <button type="button" data-preset="unfair">Unfair</button>
+          <button type="button" data-preset="neural">Neural</button>
+        </div>
+        <label class="skill">
+          Skill <span id="skill-val">0.55</span>
+          <input id="skill" type="range" min="0" max="1" step="0.01" value="0.55" />
+        </label>
+        <p class="hint">Arrow keys or W/S, or drag on the court. Skill adds reaction delay and random no-ops. Neural is the ONNX net at skill 1. If the net fails to load, the page uses the lag-chase heuristic.</p>
+      </div>
+    </div>
+    <footer>
+      <p>Martial Systems · first to 11 · <a href="https://github.com/martialsystems/fly_pong">source</a></p>
+    </footer>
+  </div>
+  <script type="module" src="js/game.js"></script>
+</body>
+</html>
