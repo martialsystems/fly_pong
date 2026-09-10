@@ -19,6 +19,7 @@ def test_move_and_aim_names():
     bank = enc.encode(st_info)
     assert bank.names_move == MOVE_KEYS
     assert bank.names_aim == AIM_KEYS
+    assert "predicted_contact_t" not in AIM_KEYS
     assert bank.move.shape == (len(MOVE_KEYS),)
     assert bank.aim.shape == (len(AIM_KEYS),)
 

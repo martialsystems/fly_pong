@@ -52,6 +52,8 @@ class FlyPongDevice:
         bank = self.encoder.encode(state)
         u_dy = self.move_router.command_np(bank.move)
         u_off = float(np.clip(self.aim_router.command_np(bank.aim), -1.0, 1.0))
+        if abs(u_off) > 0.05:
+            u_off = 1.0 if u_off > 0.0 else -1.0
         aim_active = bool(bank.incoming and bank.frames_to_paddle <= self.aim_n)
         speed = float(self.C["paddleSpeed"])
         ph = float(self.C["paddleH"])
@@ -101,8 +103,13 @@ class FlyPongDevice:
             path,
         )
 
-    def load(self, path: Path) -> None:
+    def load(self, path: Path, *, aim: bool = True) -> None:
         blob = torch.load(Path(path), map_location="cpu", weights_only=True)
         self.move_router.load_state_dict(blob["move"])
-        self.aim_router.load_state_dict(blob["aim"])
+        if aim:
+            try:
+                self.aim_router.load_state_dict(blob["aim"])
+            except RuntimeError:
+                # Aim bank changed (clock channel removed). Keep move; reinit aim.
+                pass
         self.aim_n = int(blob.get("aim_n", self.aim_n))

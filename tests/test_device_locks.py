@@ -24,7 +24,8 @@ def test_readme_quotes_device_locks():
     assert "predicted_contact_t 0.900" in text
     assert "logs/device_move.json" in text
     assert "logs/device_aim.json" in text
-    assert "Self-play" in text
+    assert "Self-play stays locked" in text
+    assert "aim_hypothesis.json" in text
     from pongforge.gate import scan_text_flags
 
     flags = scan_text_flags(text)

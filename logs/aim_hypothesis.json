@@ -1,0 +1,21 @@
+{
+  "written_before_run": true,
+  "date": "2026-09-10",
+  "log_line": "Phase A mastered tracking via error_y. Phase B vs lag did not beat chase at placement (open-hit ~0.5). Self-play stays locked until aim beats move-only against something that returns the ball.",
+  "opponent": "frozen_phase_a",
+  "opponent_note": "Far paddle is Phase A move gates with aim_n=0. It returns center hits.",
+  "n": 40,
+  "seed0": 0,
+  "arms": ["move_only", "move_aim"],
+  "same_seeds": true,
+  "aim_bank_excludes": ["predicted_contact_t"],
+  "pass": {
+    "open_hit_delta_min": 0.08,
+    "point_delta_min": 40,
+    "gate_mass_min": 0.3,
+    "gate_keys": ["desired_offset", "opponent_open_up", "opponent_open_down"],
+    "clock_must_be_absent": true,
+    "rule": "aim wins if (open_hit_aim - open_hit_move) >= 0.08 OR (agent_points_aim - agent_points_move) >= 40, AND max(gate mass on gate_keys) >= 0.3, AND predicted_contact_t is not in the aim bank"
+  },
+  "selfplay": "locked_until_pass"
+}

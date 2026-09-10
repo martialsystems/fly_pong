@@ -26,7 +26,6 @@ MOVE_KEYS = (
 AIM_KEYS = (
     "lc_blob",
     "predicted_contact_y",
-    "predicted_contact_t",
     "opponent_y",
     "opponent_open_up",
     "opponent_open_down",
@@ -35,7 +34,7 @@ AIM_KEYS = (
 
 RATE_SCALE = 80.0
 TIME_CAP = 120.0
-AIM_N = 10
+AIM_N = 24
 
 
 @dataclass
@@ -131,7 +130,6 @@ class FeatureEncoder:
             [
                 float(luma.max()),
                 pred_y_px / h,
-                t_hit / TIME_CAP,
                 (opp_y + ph / 2.0) / h,
                 open_up,
                 open_down,

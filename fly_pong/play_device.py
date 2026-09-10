@@ -67,6 +67,7 @@ def play_match(
     aim_on = 0
     aim_off_steer = 0
     open_hits = 0
+    contact_log: list[dict[str, Any]] = []
     track = []
     g_move = []
     g_aim = []
@@ -103,7 +104,14 @@ def play_match(
         state, reward = physics_step(state, agent_dy, opp_dy, C, serve_angle=float(rng.uniform(-C["serveAngleMax"], C["serveAngleMax"])))
         if prev_vx < 0 and float(state["ball_vx"]) > 0:
             contacts += 1
-            # outbound vy sign vs open side (positive vy is down)
+            geo = (float(state["ball_y"]) - (float(state["agent_y"]) + ph / 2.0)) / (ph / 2.0)
+            contact_log.append(
+                {
+                    "u_offset": float(cmd["u_offset"]),
+                    "geo_offset": float(geo),
+                    "aim_active": bool(cmd["aim_active"]),
+                }
+            )
             if prev_open > 0 and state["ball_vy"] > 0:
                 open_hits += 1
             elif prev_open < 0 and state["ball_vy"] < 0:
@@ -131,4 +139,7 @@ def play_match(
         "mean_track_err": float(np.mean(track)) if track else 1.0,
         "g_move": np.mean(np.stack(g_move), axis=0).tolist() if g_move else [],
         "g_aim": np.mean(np.stack(g_aim), axis=0).tolist() if g_aim else [],
+        "mean_abs_u_offset": float(np.mean([abs(c["u_offset"]) for c in contact_log])) if contact_log else 0.0,
+        "mean_abs_geo_offset": float(np.mean([abs(c["geo_offset"]) for c in contact_log])) if contact_log else 0.0,
+        "contact_n": len(contact_log),
     }

@@ -24,9 +24,11 @@ Copied from `logs/device_move.json` and `logs/device_aim.json`, n=40, seed 0, la
 | Phase | Matches | Points | Contact | Open-hit | Biggest gate |
 |-------|--------:|-------:|--------:|---------:|--------------|
 | A move | 40/40 | 422-48 | 0.992 | 0.520 | error_y 0.984 |
-| B aim | 40/40 | 420-47 | 0.992 | 0.497 | predicted_contact_t 0.900 |
+| B aim vs lag | 40/40 | 420-47 | 0.992 | 0.497 | predicted_contact_t 0.900 |
 
-Contact bar for unlocking aim is 0.95. Point bar for unlocking self-play is 0.80. Both A and B clear those vs this chaser. Open-hit stayed ~0.5: the aim head did not place returns better than chase against lag. Self-play (`scripts/train_selfplay.py`) is gated and has no lock yet.
+Phase A mastered tracking via error_y. Phase B vs lag did not beat chase at placement (open-hit ~0.5). The clock channel `predicted_contact_t` is out of the aim bank.
+
+Vs a frozen Phase A returner, same 40 seeds (`logs/aim_hypothesis.json` written first, then `logs/aim_vs_returner.json`): move-only 12/40, 264-289, open-hit 0.531. Move+aim (24-frame window, full half-paddle target) 18/40, 316-321, open-hit 0.568. Point delta +52 clears the written +40 bar. Open-hit delta +0.037 does not clear +0.08. `desired_offset` gate 0.495. Geometric |offset| 0.35 → 0.78, so the bounce is coupled. Self-play stays locked (open-hit 0.568, not 0.65).
 
 PPO on the 6-number box, 100 games, was 99/100 (`public/models/pong.onnx`). That net does not share weights with the fly loop or the device.
 
@@ -58,7 +60,7 @@ Do not use stock `/usr/bin/python3 -m pytest`.
 PYTHONPATH=. .venv/bin/python scripts/train_move.py
 PYTHONPATH=. .venv/bin/python scripts/eval_device.py --out logs/device_move.json
 PYTHONPATH=. .venv/bin/python scripts/train_aim.py
-PYTHONPATH=. .venv/bin/python scripts/eval_device.py --out logs/device_aim.json --controller device_aim
+PYTHONPATH=. .venv/bin/python scripts/eval_aim_returner.py
 .venv/bin/python -m http.server 8000 --directory public
 ```
 
@@ -71,7 +73,9 @@ Restamp tables from the JSON if the numbers move.
 | `logs/fly_gate.json` | Centering lock, n=40 |
 | `logs/fly_gate_motion_only.json` | Motion-only lock, n=20 |
 | `logs/device_move.json` | Phase A lock |
-| `logs/device_aim.json` | Phase B lock |
+| `logs/device_aim.json` | Phase B vs lag (null placement) |
+| `logs/aim_hypothesis.json` | Pass/fail written before the returner eval |
+| `logs/aim_vs_returner.json` | Move-only vs move+aim vs Phase A |
 | `fly_pong/features.py` | Named move/aim channels |
 | `fly_pong/routers.py` | Softmax gates |
 | `fly_pong/device.py` | Encode + two heads |

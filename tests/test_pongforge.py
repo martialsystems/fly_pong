@@ -14,9 +14,23 @@ def test_phase_order_allows_aim_after_bar():
     require_phase(intent="train_aim", move_contact_rate=0.96)
 
 
-def test_phase_order_refuses_selfplay_before_aim():
+def test_phase_order_refuses_selfplay_before_aim_delta():
     with pytest.raises(LawBlockedError):
-        require_phase(intent="train_selfplay", move_contact_rate=0.99, aim_point_rate=0.2)
+        require_phase(
+            intent="train_selfplay",
+            move_contact_rate=0.99,
+            aim_point_rate=0.9,
+            aim_beats_move_vs_returner=False,
+        )
+
+
+def test_phase_order_allows_selfplay_after_aim_delta():
+    require_phase(
+        intent="train_selfplay",
+        move_contact_rate=0.99,
+        aim_point_rate=0.9,
+        aim_beats_move_vs_returner=True,
+    )
 
 
 def test_claim_bans_refuse_lag_god():

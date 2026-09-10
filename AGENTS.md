@@ -4,7 +4,7 @@ MIT. GraphForge pin in `pongforge/`: phase A before B before C; lag 40/40 or PPO
 
 The fly loop is the experiment. PPO in `public/` is a separate controller. Do not import T4/T5 from `public/`. Do not train T4/T5 as a PPO policy. Train gates and readouts only.
 
-Locked rates: `logs/fly_gate.json`, `logs/fly_gate_motion_only.json`, `logs/device_move.json`, `logs/device_aim.json`. README quotes those files. Restamp from JSON.
+Locked rates: `logs/fly_gate.json`, `logs/fly_gate_motion_only.json`, `logs/device_move.json`, `logs/device_aim.json`, `logs/aim_hypothesis.json`, `logs/aim_vs_returner.json`. README quotes those files. Self-play stays locked until `aim_vs_returner.json` has `selfplay: unlocked`. Do not train more vs the lag bot to force a placement title.
 
 Physics lives in `shared/constants.json` plus `fly_pong/physics.py`. The browser clone is `public/js/physics.js`. After changing constants, run `python scripts/sync_constants.py`.
 

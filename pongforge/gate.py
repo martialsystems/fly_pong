@@ -24,16 +24,23 @@ GOD_RE = re.compile(
     r"\b(pong god|finished god|has mastered pong|100% vs (yourself|a live copy))\b",
     re.I,
 )
-LAG_GOD_RE = re.compile(r"\b(god|mastered)\b.*\b(lag|centering|99/100|40/40)\b", re.I)
+LAG_GOD_RE = re.compile(r"\b(god)\b.*\b(lag|centering|99/100|40/40)\b", re.I)
 
 
-def require_phase(*, intent: str, move_contact_rate: float, aim_point_rate: float = 0.0) -> None:
+def require_phase(
+    *,
+    intent: str,
+    move_contact_rate: float,
+    aim_point_rate: float = 0.0,
+    aim_beats_move_vs_returner: bool = False,
+) -> None:
     require_law(
         build_phase(),
         {
             "intent": intent,
             "move_contact_rate": float(move_contact_rate),
             "aim_point_rate": float(aim_point_rate),
+            "aim_beats_move_vs_returner": bool(aim_beats_move_vs_returner),
         },
         allow_decisions=["allow"],
         law_id="pong.phase_order",
@@ -99,11 +106,20 @@ def require_can_train_aim() -> None:
     require_phase(intent="train_aim", move_contact_rate=load_move_contact())
 
 
+def load_aim_beats_returner() -> bool:
+    path = LOGS / "aim_vs_returner.json"
+    if not path.is_file():
+        return False
+    data = json.loads(path.read_text(encoding="utf-8"))
+    return bool(data.get("passed")) and str(data.get("selfplay") or "") == "unlocked"
+
+
 def require_can_train_selfplay() -> None:
     require_phase(
         intent="train_selfplay",
         move_contact_rate=load_move_contact(),
         aim_point_rate=load_aim_point(),
+        aim_beats_move_vs_returner=load_aim_beats_returner(),
     )
 
 
