@@ -1,0 +1,11 @@
+{
+  "engine": "graphforge",
+  "github": "martialsystems/graphforge",
+  "track": "main",
+  "remote": "origin",
+  "min_version": "0.6.0",
+  "policy": "report_only",
+  "local_candidates": ["~/graphforge"],
+  "require_product_laws": true,
+  "note": "fly_pong device: phase A before B before C; lag 99/100 is not a god; 100% vs a live copy is not skill. Verify-before-done is the finish gate."
+}

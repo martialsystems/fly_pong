@@ -1,8 +1,10 @@
 # Agent notes: fly_pong
 
-MIT. No GraphForge pin. The fly loop is the experiment. PPO in `public/` is a separate controller. Do not import T4/T5 from `public/`.
+MIT. GraphForge pin in `pongforge/`: phase A before B before C; lag 40/40 or PPO 99/100 is not a finished title; 100% vs a live copy is not skill. Verify-before-done is the finish gate.
 
-Locked match rates live in `logs/fly_gate.json` and `logs/fly_gate_motion_only.json`. README quotes those files. `scripts/eval_fly.py` rewrites the lock. Restamp the README table from the JSON.
+The fly loop is the experiment. PPO in `public/` is a separate controller. Do not import T4/T5 from `public/`. Do not train T4/T5 as a PPO policy. Train gates and readouts only.
+
+Locked rates: `logs/fly_gate.json`, `logs/fly_gate_motion_only.json`, `logs/device_move.json`, `logs/device_aim.json`. README quotes those files. Restamp from JSON.
 
 Physics lives in `shared/constants.json` plus `fly_pong/physics.py`. The browser clone is `public/js/physics.js`. After changing constants, run `python scripts/sync_constants.py`.
 

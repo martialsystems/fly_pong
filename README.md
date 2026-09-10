@@ -15,15 +15,30 @@ Copied from the lock files under `logs/`.
 | T4/T5 motion only | 20 | 0/20 | 0-220 | 0.274 |
 | T4/T5 + centering | 40 | 40/40 | 439-46 | 0.023 |
 
-PPO on the same env, 100 games, was 99/100. That net is `public/models/pong.onnx`. It does not share weights with the fly loop.
+## Device (move then aim)
+
+Named channels, softmax gates, T4/T5 frozen. MoveRouter runs every frame. AimRouter only in the last 10 frames before contact. Bounce is still the geometric paddle offset in `physics.py`.
+
+Copied from `logs/device_move.json` and `logs/device_aim.json`, n=40, seed 0, lag paddle:
+
+| Phase | Matches | Points | Contact | Open-hit | Biggest gate |
+|-------|--------:|-------:|--------:|---------:|--------------|
+| A move | 40/40 | 422-48 | 0.992 | 0.520 | error_y 0.984 |
+| B aim | 40/40 | 420-47 | 0.992 | 0.497 | predicted_contact_t 0.900 |
+
+Contact bar for unlocking aim is 0.95. Point bar for unlocking self-play is 0.80. Both A and B clear those vs this chaser. Open-hit stayed ~0.5: the aim head did not place returns better than chase against lag. Self-play (`scripts/train_selfplay.py`) is gated and has no lock yet.
+
+PPO on the 6-number box, 100 games, was 99/100 (`public/models/pong.onnx`). That net does not share weights with the fly loop or the device.
 
 ## What this is
 
-Gymnasium Pong, Discrete(3), observation `[ball_x, ball_y, ball_vx, ball_vy, agent_y, opp_y]`. Physics lives in `shared/constants.json`. Python and the browser clone the same step.
+Gymnasium Pong. Physics in `shared/constants.json`. Python and the browser clone the same step.
 
-The fly loop: photoreceptor strip → L1/L2 half-wave → Reichardt T4c/d and T5c/d → a center-of-mass error against paddle height → stay / up / down. Approach gain is higher when `ball_vx` is toward the agent. `fly_pong/fbl_adapter.py` is a Neurokernel stub. Public FFBO servers do not execute circuits.
+Hand loop: photoreceptor strip → L1/L2 half-wave → Reichardt T4c/d and T5c/d → centering. Device: the same strip plus `error_y`, time-to-paddle, LC-like blob energy, opponent open space, `desired_offset`. `pongforge/` refuses aim-before-move and refuses lag-as-finished-title claims.
 
-`public/` is a separate canvas opponent that loads the PPO ONNX in the browser.
+`fly_pong/fbl_adapter.py` is a Neurokernel stub. Public FFBO servers do not execute circuits.
+
+`public/` is a canvas opponent that loads the PPO ONNX.
 
 ## Run
 
@@ -40,10 +55,14 @@ Do not use stock `/usr/bin/python3 -m pytest`.
 .venv/bin/python -m fly_pong.run_human
 .venv/bin/python -m fly_pong.run_fly
 .venv/bin/python scripts/eval_fly.py --games 40 --out logs/fly_gate.json
+PYTHONPATH=. .venv/bin/python scripts/train_move.py
+PYTHONPATH=. .venv/bin/python scripts/eval_device.py --out logs/device_move.json
+PYTHONPATH=. .venv/bin/python scripts/train_aim.py
+PYTHONPATH=. .venv/bin/python scripts/eval_device.py --out logs/device_aim.json --controller device_aim
 .venv/bin/python -m http.server 8000 --directory public
 ```
 
-`eval_fly.py` rewrites the lock. Restamp the table from that JSON if the numbers move.
+Restamp tables from the JSON if the numbers move.
 
 ## Files
 
@@ -51,13 +70,14 @@ Do not use stock `/usr/bin/python3 -m pytest`.
 |------|------|
 | `logs/fly_gate.json` | Centering lock, n=40 |
 | `logs/fly_gate_motion_only.json` | Motion-only lock, n=20 |
-| `fly_pong/physics.py` | Pure step, no pygame |
-| `fly_pong/env.py` | Gymnasium wrapper |
-| `fly_pong/sensors.py` | Vertical luminance strip |
-| `fly_pong/brain.py` | T4/T5 Reichardt array |
-| `fly_pong/bridge.py` | Centering + motion decode |
-| `scripts/eval_fly.py` | Match win rate vs lag paddle |
-| `scripts/train_pong.py` | PPO + VecNormalize |
+| `logs/device_move.json` | Phase A lock |
+| `logs/device_aim.json` | Phase B lock |
+| `fly_pong/features.py` | Named move/aim channels |
+| `fly_pong/routers.py` | Softmax gates |
+| `fly_pong/device.py` | Encode + two heads |
+| `pongforge/` | Phase order and claim bans |
+| `scripts/eval_fly.py` | Hand-loop match rate |
+| `scripts/eval_device.py` | Contact, points, gates |
 | `public/` | Canvas PPO opponent |
 
 Code is MIT.
