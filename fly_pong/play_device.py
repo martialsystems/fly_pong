@@ -11,6 +11,33 @@ from fly_pong.device import FlyPongDevice
 from fly_pong.physics import initial_state, lag_opponent_dy, step as physics_step
 
 
+def _y_flight(y: float, vy: float, t: float, h: float, r: float) -> tuple[float, bool]:
+    """Integrate Y with wall reflections. Returns (y_at_t, hit_wall)."""
+    wall = False
+    remaining = float(t)
+    pos = float(y)
+    vel = float(vy)
+    for _ in range(12):
+        if remaining <= 1e-9 or abs(vel) < 1e-9:
+            break
+        if vel > 0:
+            tw = (h - r - pos) / vel
+        else:
+            tw = (pos - r) / (-vel)
+        if tw < 0:
+            pos = pos + vel * remaining
+            break
+        if remaining <= tw:
+            pos = pos + vel * remaining
+            remaining = 0.0
+            break
+        remaining -= tw
+        pos = h - r if vel > 0 else r
+        vel = -vel
+        wall = True
+    return pos, wall
+
+
 def _info_state(raw: dict[str, Any], C: dict[str, Any]) -> dict[str, Any]:
     return {
         "ball_x": raw["ball_x"],
@@ -68,6 +95,7 @@ def play_match(
     aim_off_steer = 0
     open_hits = 0
     contact_log: list[dict[str, Any]] = []
+    pending: list[int] = []
     track = []
     g_move = []
     g_aim = []
@@ -100,6 +128,7 @@ def play_match(
             opp_dy = float(opp_cmd["dy"])
 
         prev_vx = float(state["ball_vx"])
+        prev_vy = float(state["ball_vy"])
         prev_open = (h - (state["opp_y"] + ph)) - state["opp_y"]
         opp_center = float(state["opp_y"]) + ph / 2.0
         state, reward = physics_step(state, agent_dy, opp_dy, C, serve_angle=float(rng.uniform(-C["serveAngleMax"], C["serveAngleMax"])))
@@ -111,22 +140,39 @@ def play_match(
             vx = float(state["ball_vx"])
             far = float(C["oppX"])
             t_land = (far - float(state["ball_x"])) / vx if vx > 1e-6 else 0.0
-            land_y = float(np.clip(float(state["ball_y"]) + float(state["ball_vy"]) * t_land, 0.0, h))
-            contact_log.append(
-                {
-                    "u_offset": applied_u,
-                    "geo_offset": float(geo),
-                    "open_side": open_side,
-                    "aim_active": bool(cmd["aim_active"]),
-                    "signed_open_cmd": int(applied_u * open_side > 0),
-                    "signed_open_geo": int(geo * open_side > 0) if open_side != 0 else 0,
-                    "opp_landing_dist": abs(land_y - opp_center),
-                }
-            )
+            land_y, wall = _y_flight(float(state["ball_y"]), float(state["ball_vy"]), t_land, h, float(C["ballR"]))
+            spin = float(C["spin"])
+            paddle_err = abs(float(cmd["paddle_center_px"]) - float(cmd["target_center_px"]))
+            row = {
+                "u_offset": applied_u,
+                "geo_offset": float(geo),
+                "open_side": open_side,
+                "aim_active": bool(cmd["aim_active"]),
+                "signed_open_cmd": int(applied_u * open_side > 0),
+                "signed_open_geo": int(geo * open_side > 0) if open_side != 0 else 0,
+                "opp_landing_dist": abs(land_y - opp_center),
+                "incoming_vx": prev_vx,
+                "incoming_vy": prev_vy,
+                "contact_y": float(state["ball_y"]),
+                "outbound_vy": float(state["ball_vy"]),
+                "wall_before_landing": bool(wall),
+                "gap_side_at_contact": open_side,
+                "side_at_landing": 1.0 if land_y > opp_center else (-1.0 if land_y < opp_center else 0.0),
+                "paddle_err_px": paddle_err,
+                "inbound_dominates": bool(abs(prev_vy) > abs(applied_u * spin)),
+                "point_won": None,
+            }
+            contact_log.append(row)
+            pending.append(len(contact_log) - 1)
             if prev_open > 0 and state["ball_vy"] > 0:
                 open_hits += 1
             elif prev_open < 0 and state["ball_vy"] < 0:
                 open_hits += 1
+        if reward != 0.0:
+            won = reward > 0.0
+            for idx in pending:
+                contact_log[idx]["point_won"] = won
+            pending = []
         center = float(state["agent_y"]) + ph / 2.0
         track.append(abs(center - float(state["ball_y"])) / h)
         g_move.append(cmd["g_move"])
@@ -156,4 +202,5 @@ def play_match(
         "signed_open_cmd": float(np.mean([c["signed_open_cmd"] for c in contact_log])) if contact_log else 0.0,
         "mean_opp_landing_dist": float(np.mean([c["opp_landing_dist"] for c in contact_log])) if contact_log else 0.0,
         "contact_n": len(contact_log),
+        "contact_log": contact_log,
     }

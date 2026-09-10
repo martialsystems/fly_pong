@@ -86,6 +86,8 @@ class FlyPongDevice:
             "u_dy": u_dy,
             "u_offset": u_off,
             "aim_active": aim_active,
+            "target_center_px": float(bank.predicted_contact_y_px - u_off * (ph / 2.0)),
+            "paddle_center_px": float(py + ph / 2.0),
             "g_move": self.move_router.gates_np(),
             "g_aim": self.aim_router.gates_np(),
             "bank": bank,

@@ -1,0 +1,43 @@
+{
+  "written_before_run": true,
+  "date": "2026-09-10",
+  "log_line": "Supervised sign raised geo signed-open to 0.814 and open-hit to 0.701; leak 0.186 and matches 10/40 failed the AND. Aim stays a head. Self-play stays locked. Next is a leak autopsy, not a physics rewrite dressed as training.",
+  "prior": {
+    "file": "logs/aim_sign_supervised.json",
+    "signed_open_geo": 0.814,
+    "signed_open_cmd": 1.0,
+    "leak": 0.186,
+    "open_hit": 0.701,
+    "matches": "10/40 vs 12/40 move-only",
+    "note": "AND-fail is correct. Do not loosen 0.08. Do not unlock C. Do not change bounce. Do not run lag. Do not train."
+  },
+  "eval": {
+    "n": 40,
+    "seed0": 0,
+    "opponent": "frozen_phase_a",
+    "weights": "artifacts/device_aim_sign.pt",
+    "dump": "leak contacts only: cmd matched gap, geo did not"
+  },
+  "row_fields": [
+    "incoming_vx",
+    "incoming_vy",
+    "contact_y",
+    "u_offset",
+    "geo_offset",
+    "outbound_vy",
+    "wall_before_landing",
+    "gap_side_at_contact",
+    "side_at_landing",
+    "paddle_err_px",
+    "point_won"
+  ],
+  "physics_is_the_cap": {
+    "rule": "Among leak rows, (wall_before_landing OR inbound_vy_dominates_offset) is the majority (>= 0.5). inbound_vy_dominates_offset means abs(incoming_vy) > abs(u_offset * spin).",
+    "then": "0.814 geo is the ceiling in this bounce law. Accept chase plus imperfect placement, or fork physics in a branch labeled physics. Do not write a C hypothesis."
+  },
+  "control_is_the_cap": {
+    "rule": "Among leak rows, paddle_err_px > paddleSpeed (7) is the majority, and larger than the physics share.",
+    "then": "Move did not reach the commanded contact Y in 24 frames. One later run may step toward aim target Y in the window. Still no self-play, still no title."
+  },
+  "c_hypothesis": "Only if a later eval has leak <= 0.08 AND match WR or point WR beats move-only on the same seeds. This supervised run would have failed that (10/40)."
+}
