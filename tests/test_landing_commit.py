@@ -33,6 +33,7 @@ def test_landing_commit_hypothesis_and_lock():
     assert hyp["log_line"] in agents
     assert "17/40" in text
     assert "0.465" in text
+    assert "one veto, two names" in text.lower()
     assert "fruit landing = aim" not in text.lower()
     assert "## Locked numbers" in text
     assert "Play the PPO" not in text

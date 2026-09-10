@@ -22,10 +22,12 @@ def test_unused_move_gates_hypothesis_and_lock():
     text = (ROOT / "README.md").read_text(encoding="utf-8")
     agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
     assert hyp["log_line"] in agents
-    assert "unused vision lost to error_y" in text
+    assert "unused vision lost to error_y" in text.lower()
     assert "0.973" in text
     assert "logs/unused_move_gates.json" in text
+    assert "not unused-vision skill" in text.lower()
     assert "plant unchanged" in text
+    assert "titles unchanged" in text
     from pongforge.gate import scan_text_flags
 
     assert not any(scan_text_flags(text).values())

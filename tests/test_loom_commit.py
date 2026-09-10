@@ -27,6 +27,8 @@ def test_loom_commit_hypothesis_and_lock():
     assert "17/40" in text
     assert "logs/loom_commit.json" in text
     assert "goalie veto" in text
+    assert "one veto, two names" in text.lower()
+    assert "same kind of object" in text.lower()
     from pongforge.gate import scan_text_flags
 
     assert not any(scan_text_flags(text).values())

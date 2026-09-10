@@ -63,10 +63,12 @@ Hypothesis files written first. Cheap filters on the court state and 1-D strip. 
 
 | Run | Log | Result |
 |-----|-----|--------|
-| Loom commit/abort | `logs/loom_commit.json` | Vs frozen Phase A, n=40. Leak 0.000, contact 0.957, matches 17/40, points 261-260 vs move-only 11/40, 262-291, contact 0.951. Window 24. Offset off. Pass as a goalie veto. |
-| Unused move gates | `logs/unused_move_gates.json` | Channels 1-7 on a separate move bank. error_y mass 0.973. Unused vision lost to error_y. Vs lag 40/40, 439-61 (chase, not a title). Vs Phase A 23/40, 283-277. Next unused mass is LC11_dark 0.011. Fail the pre-registered error_y bar. |
+| Loom commit/abort | `logs/loom_commit.json` | Same reach-gated intercept Y as landing_commit, named LPLC tau. Vs frozen Phase A, n=40. Leak 0.000, contact 0.957, matches 17/40, points 261-260 vs move-only 11/40, 262-291, contact 0.951. Window 24. Offset off. Pass as a goalie veto. |
+| Unused move gates | `logs/unused_move_gates.json` | Channels 1-7 on a separate move bank. error_y mass 0.973. Unused vision lost to error_y. Vs lag 40/40, 439-61 (chase, not a title). Vs Phase A 23/40, 283-277: a different training seed with error_y at 0.973; not unused-vision skill. Next unused mass is LC11_dark 0.011. Fail the pre-registered error_y bar. |
 
-error_y won the move gates (unused vision lost to error_y). The loom veto beat 12/40 (17/40). Unused parts retargeted; plant unchanged; titles unchanged.
+`logs/loom_commit.json` 17/40 and `logs/landing_commit.json` 17/40 are the same kind of object: reach-gated intercept Y. One veto, two names.
+
+error_y still owns move. Loom is an abort/commit on reach. Unused fly-named filters are unique labels on court/strip features, not a second retina. Unused parts retargeted; plant unchanged; titles unchanged.
 
 ### Browser PPO
 
