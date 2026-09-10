@@ -63,6 +63,7 @@ def test_readme_quality():
     assert "not a fly result" in text
     assert "not a placement result" in text
     assert "Self-play is not part of this title" in text
+    assert "[Fly research index](https://gist.github.com/martialsystems/12835f747d6360781f3cc7f91f243178)" in text
     assert "–" not in text
     assert "Do not start another aim head on this object" in agents
     assert "Do not retcon the +52 point OR-bar into aim" in agents

@@ -161,3 +161,5 @@ After changing `public/`, publish with `scripts/publish_pages.sh`. Restamp table
 | `scripts/publish_pages.sh` | Copy `public/` onto `gh-pages` |
 
 Sequel work needs a new question. MIT license.
+
+[Fly research index](https://gist.github.com/martialsystems/12835f747d6360781f3cc7f91f243178)
