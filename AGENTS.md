@@ -1,8 +1,10 @@
 # Agent notes: fly_pong
 
-MIT. No GraphForge pin. Two products in one tree: a Gymnasium trainer and a static browser opponent. The T4/T5 loop is Python-only. Do not import it from `public/`.
+MIT. No GraphForge pin. The fly loop is the experiment. PPO in `public/` is a separate controller. Do not import T4/T5 from `public/`.
 
-Physics lives in `shared/constants.json` plus `fly_pong/physics.py`. The browser clone is `public/js/physics.js`. After changing constants, run `python scripts/sync_constants.py`. A parity test steps both.
+Locked match rates live in `logs/fly_gate.json` and `logs/fly_gate_motion_only.json`. README quotes those files. `scripts/eval_fly.py` rewrites the lock. Restamp the README table from the JSON.
+
+Physics lives in `shared/constants.json` plus `fly_pong/physics.py`. The browser clone is `public/js/physics.js`. After changing constants, run `python scripts/sync_constants.py`.
 
 The website AI is a left-trained PPO policy. The right paddle must send a mirrored 6-D observation, then VecNormalize from `public/models/norm.json`.
 

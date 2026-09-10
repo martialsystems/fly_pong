@@ -1,14 +1,31 @@
-# Fly Pong
+# fly_pong
 
-A Gymnasium Pong environment, a small PPO policy exported to ONNX, and a static page where a human plays that policy in the browser.
+Can a fly-style vertical motion detector play Pong?
 
-Observation is `[ball_x, ball_y, ball_vx, ball_vy, agent_y, opp_y]`, positions in `[0, 1]`, velocities in `[-1, 1]`. Actions are Discrete(3): stay, up, down. Physics constants live in `shared/constants.json`. Python and JavaScript step the same formulas.
+Motion alone cannot. T4/T5 on a 32-ommatidium strip, 20 games vs the env's lag paddle, seed 0: **0/20 matches, 0-220 points** (`logs/fly_gate_motion_only.json`). A still or sideways ball barely moves on a 1-D retina, so the paddle never acquires it.
 
-The public page is `public/index.html`. Inference is onnxruntime-web plus a skill slider (reaction delay and random no-ops). If the ONNX file or WASM runtime fails to load, the right paddle uses the lag-chase heuristic. There is no server-side inference.
+Add a retinotopic centering reflex (luminance center of mass vs the paddle's height) and the same body won **40/40 matches, 439-46 points** at n=40, seed 0 (`logs/fly_gate.json`). One of those 40 hit the 20,000-frame cap at 10-4; the other 39 finished first to 11. Mean tracking error 0.023 of court height. That is a centering loop on a 32-pixel strip. The lock is vs the lag paddle (0.75× speed) built into `FlyPongEnv`.
 
-A Python lab loop (`python -m fly_pong.run_fly`) maps the ball to a vertical luminance strip and a T4/T5-style Reichardt detector. FlyBrainLab is a stub in `fly_pong/fbl_adapter.py` until a local Neurokernel session exists.
+## Results
 
-## How to run
+Copied from the lock files under `logs/`.
+
+| Controller | n | Matches | Points | Track err |
+|------------|--:|--------:|-------:|----------:|
+| T4/T5 motion only | 20 | 0/20 | 0-220 | 0.274 |
+| T4/T5 + centering | 40 | 40/40 | 439-46 | 0.023 |
+
+PPO on the same env, 100 games, was 99/100. That net is `public/models/pong.onnx`. It does not share weights with the fly loop.
+
+## What this is
+
+Gymnasium Pong, Discrete(3), observation `[ball_x, ball_y, ball_vx, ball_vy, agent_y, opp_y]`. Physics lives in `shared/constants.json`. Python and the browser clone the same step.
+
+The fly loop: photoreceptor strip → L1/L2 half-wave → Reichardt T4c/d and T5c/d → a center-of-mass error against paddle height → stay / up / down. Approach gain is higher when `ball_vx` is toward the agent. `fly_pong/fbl_adapter.py` is a Neurokernel stub. Public FFBO servers do not execute circuits.
+
+`public/` is a separate canvas opponent that loads the PPO ONNX in the browser.
+
+## Run
 
 ```bash
 /opt/homebrew/bin/python3.12 -m venv .venv
@@ -19,48 +36,28 @@ A Python lab loop (`python -m fly_pong.run_fly`) maps the ball to a vertical lum
 
 Do not use stock `/usr/bin/python3 -m pytest`.
 
-Human physics check (opens a pygame window):
-
 ```bash
 .venv/bin/python -m fly_pong.run_human
-```
-
-Fly-circuit closed loop:
-
-```bash
 .venv/bin/python -m fly_pong.run_fly
-```
-
-Static site (any static server):
-
-```bash
+.venv/bin/python scripts/eval_fly.py --games 40 --out logs/fly_gate.json
 .venv/bin/python -m http.server 8000 --directory public
 ```
 
-Then open `http://127.0.0.1:8000/`. Arrow keys or W/S, or drag on the court.
-
-## Train and export
-
-```bash
-.venv/bin/python scripts/train_pong.py --timesteps 300000
-.venv/bin/python scripts/eval_pong.py --games 100
-.venv/bin/python scripts/export_onnx.py
-```
-
-Eval prints win rate vs the lag opponent. Export writes `public/models/pong.onnx` and `public/models/norm.json`. The browser AI plays the right paddle, so it mirrors x and vx before the net (the policy was trained as the left agent).
+`eval_fly.py` rewrites the lock. Restamp the table from that JSON if the numbers move.
 
 ## Files
 
 | Path | Role |
 |------|------|
-| `shared/constants.json` | Width, speeds, bounce, observation scale |
+| `logs/fly_gate.json` | Centering lock, n=40 |
+| `logs/fly_gate_motion_only.json` | Motion-only lock, n=20 |
 | `fly_pong/physics.py` | Pure step, no pygame |
 | `fly_pong/env.py` | Gymnasium wrapper |
-| `fly_pong/obs.py` | 6-D vector and right-paddle mirror |
-| `fly_pong/bridge.py` | Lab T4/T5 interface |
+| `fly_pong/sensors.py` | Vertical luminance strip |
+| `fly_pong/brain.py` | T4/T5 Reichardt array |
+| `fly_pong/bridge.py` | Centering + motion decode |
+| `scripts/eval_fly.py` | Match win rate vs lag paddle |
 | `scripts/train_pong.py` | PPO + VecNormalize |
-| `scripts/export_onnx.py` | ONNX + `norm.json` |
-| `public/` | Canvas opponent, no Python |
-| `scripts/viewport_sanity.py` | Phone 390×844 and desktop ~1280 via CDP |
+| `public/` | Canvas PPO opponent |
 
-Original code is MIT.
+Code is MIT.

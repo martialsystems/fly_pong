@@ -43,10 +43,50 @@ def test_bridge_reset_and_step():
     brain = FlyBrainBridge(n_ommatidia=16)
     brain.reset()
     action, neural = brain.brain_step(
-        {"height": 360.0, "ball_y": 180.0, "ball_x": 240.0}
+        {
+            "height": 360.0,
+            "ball_y": 180.0,
+            "ball_x": 240.0,
+            "paddle_y": 150.0,
+            "paddle_h": 60.0,
+            "ball_vx": -1.0,
+        }
     )
     assert action in (0, 1, 2)
     assert "T4c" in neural and "stimulus" in neural
+    assert "pos_err" in neural
+
+
+def test_centering_moves_paddle_toward_blob():
+    brain = FlyBrainBridge(n_ommatidia=32)
+    high = {
+        "height": 360.0,
+        "ball_y": 80.0,
+        "ball_x": 240.0,
+        "paddle_y": 240.0,
+        "paddle_h": 60.0,
+        "ball_vx": -3.0,
+    }
+    low = dict(high)
+    low["ball_y"] = 300.0
+    low["paddle_y"] = 40.0
+    aligned = dict(high)
+    aligned["ball_y"] = 180.0
+    aligned["paddle_y"] = 150.0
+    aligned["ball_vx"] = 0.0
+
+    brain.reset()
+    up, n_up = brain.brain_step(high)
+    brain.reset()
+    down, n_down = brain.brain_step(low)
+    brain.reset()
+    stay, n_stay = brain.brain_step(aligned)
+    assert n_up["pos_err"] < 0
+    assert up == 1
+    assert n_down["pos_err"] > 0
+    assert down == 2
+    assert abs(n_stay["pos_err"]) < 0.02
+    assert stay == 0
 
 
 def test_fbl_adapter_is_stub():

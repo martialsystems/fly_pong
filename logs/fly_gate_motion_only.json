@@ -1,0 +1,198 @@
+{
+  "n": 20,
+  "seed0": 0,
+  "max_frames": 20000,
+  "opponent": "lag_chase",
+  "controller": "t4t5_motion_only",
+  "wins": 0,
+  "losses": 20,
+  "win_rate": 0.0,
+  "agent_points": 0,
+  "opp_points": 220,
+  "point_rate": 0.0,
+  "mean_track_err": 0.27390941677974584,
+  "mean_frames": 1383.5,
+  "hit_frame_cap": 0,
+  "games": [
+    {
+      "seed": 0,
+      "agent_score": 0,
+      "opp_score": 11,
+      "win": false,
+      "frames": 1761,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.30465299271447704
+    },
+    {
+      "seed": 1,
+      "agent_score": 0,
+      "opp_score": 11,
+      "win": false,
+      "frames": 1661,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.15314317792832233
+    },
+    {
+      "seed": 2,
+      "agent_score": 0,
+      "opp_score": 11,
+      "win": false,
+      "frames": 1224,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.26260214739532445
+    },
+    {
+      "seed": 3,
+      "agent_score": 0,
+      "opp_score": 11,
+      "win": false,
+      "frames": 1242,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.33766387280724497
+    },
+    {
+      "seed": 4,
+      "agent_score": 0,
+      "opp_score": 11,
+      "win": false,
+      "frames": 1069,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.3311442333802346
+    },
+    {
+      "seed": 5,
+      "agent_score": 0,
+      "opp_score": 11,
+      "win": false,
+      "frames": 1391,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.2469133396189515
+    },
+    {
+      "seed": 6,
+      "agent_score": 0,
+      "opp_score": 11,
+      "win": false,
+      "frames": 1955,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.24906010529224906
+    },
+    {
+      "seed": 7,
+      "agent_score": 0,
+      "opp_score": 11,
+      "win": false,
+      "frames": 1064,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.4102714824255377
+    },
+    {
+      "seed": 8,
+      "agent_score": 0,
+      "opp_score": 11,
+      "win": false,
+      "frames": 1577,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.194493574752622
+    },
+    {
+      "seed": 9,
+      "agent_score": 0,
+      "opp_score": 11,
+      "win": false,
+      "frames": 1148,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.29595728274877403
+    },
+    {
+      "seed": 10,
+      "agent_score": 0,
+      "opp_score": 11,
+      "win": false,
+      "frames": 1387,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.2317834714741518
+    },
+    {
+      "seed": 11,
+      "agent_score": 0,
+      "opp_score": 11,
+      "win": false,
+      "frames": 1144,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.2002988435565006
+    },
+    {
+      "seed": 12,
+      "agent_score": 0,
+      "opp_score": 11,
+      "win": false,
+      "frames": 1256,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.2946581909828654
+    },
+    {
+      "seed": 13,
+      "agent_score": 0,
+      "opp_score": 11,
+      "win": false,
+      "frames": 1077,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.3782107399293597
+    },
+    {
+      "seed": 14,
+      "agent_score": 0,
+      "opp_score": 11,
+      "win": false,
+      "frames": 1481,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.2639628373234127
+    },
+    {
+      "seed": 15,
+      "agent_score": 0,
+      "opp_score": 11,
+      "win": false,
+      "frames": 1086,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.3432838123428789
+    },
+    {
+      "seed": 16,
+      "agent_score": 0,
+      "opp_score": 11,
+      "win": false,
+      "frames": 1378,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.17849167951348086
+    },
+    {
+      "seed": 17,
+      "agent_score": 0,
+      "opp_score": 11,
+      "win": false,
+      "frames": 2091,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.26444546142211356
+    },
+    {
+      "seed": 18,
+      "agent_score": 0,
+      "opp_score": 11,
+      "win": false,
+      "frames": 1412,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.22064264325715113
+    },
+    {
+      "seed": 19,
+      "agent_score": 0,
+      "opp_score": 11,
+      "win": false,
+      "frames": 1266,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.31650844672926387
+    }
+  ]
+}

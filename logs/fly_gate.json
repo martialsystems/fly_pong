@@ -1,0 +1,378 @@
+{
+  "n": 40,
+  "seed0": 0,
+  "max_frames": 20000,
+  "opponent": "lag_chase",
+  "controller": "t4t5_plus_retinotopic_centering",
+  "wins": 40,
+  "losses": 0,
+  "win_rate": 1.0,
+  "agent_points": 439,
+  "opp_points": 46,
+  "point_rate": 0.9051546391752577,
+  "mean_track_err": 0.023105744920989386,
+  "mean_frames": 14412.825,
+  "hit_frame_cap": 1,
+  "games": [
+    {
+      "seed": 0,
+      "agent_score": 11,
+      "opp_score": 1,
+      "win": true,
+      "frames": 12936,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.02517414914574298
+    },
+    {
+      "seed": 1,
+      "agent_score": 11,
+      "opp_score": 2,
+      "win": true,
+      "frames": 17206,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.022251072581918586
+    },
+    {
+      "seed": 2,
+      "agent_score": 11,
+      "opp_score": 2,
+      "win": true,
+      "frames": 13005,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.02501861487622804
+    },
+    {
+      "seed": 3,
+      "agent_score": 11,
+      "opp_score": 0,
+      "win": true,
+      "frames": 12596,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.02067195518815921
+    },
+    {
+      "seed": 4,
+      "agent_score": 11,
+      "opp_score": 1,
+      "win": true,
+      "frames": 16298,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.021182567270116155
+    },
+    {
+      "seed": 5,
+      "agent_score": 11,
+      "opp_score": 1,
+      "win": true,
+      "frames": 14765,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.021410643395284246
+    },
+    {
+      "seed": 6,
+      "agent_score": 11,
+      "opp_score": 3,
+      "win": true,
+      "frames": 18271,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.023025662283806834
+    },
+    {
+      "seed": 7,
+      "agent_score": 11,
+      "opp_score": 3,
+      "win": true,
+      "frames": 15282,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.02527363939341989
+    },
+    {
+      "seed": 8,
+      "agent_score": 11,
+      "opp_score": 1,
+      "win": true,
+      "frames": 15929,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.022263376625413556
+    },
+    {
+      "seed": 9,
+      "agent_score": 11,
+      "opp_score": 1,
+      "win": true,
+      "frames": 16078,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.024635885264398083
+    },
+    {
+      "seed": 10,
+      "agent_score": 11,
+      "opp_score": 0,
+      "win": true,
+      "frames": 14803,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.021105336494454115
+    },
+    {
+      "seed": 11,
+      "agent_score": 11,
+      "opp_score": 0,
+      "win": true,
+      "frames": 17337,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.020356433070239995
+    },
+    {
+      "seed": 12,
+      "agent_score": 11,
+      "opp_score": 2,
+      "win": true,
+      "frames": 13730,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.026750878926967425
+    },
+    {
+      "seed": 13,
+      "agent_score": 11,
+      "opp_score": 0,
+      "win": true,
+      "frames": 9864,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.026719004748028945
+    },
+    {
+      "seed": 14,
+      "agent_score": 11,
+      "opp_score": 1,
+      "win": true,
+      "frames": 15506,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.021881766568106104
+    },
+    {
+      "seed": 15,
+      "agent_score": 11,
+      "opp_score": 0,
+      "win": true,
+      "frames": 11685,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.021985731516250197
+    },
+    {
+      "seed": 16,
+      "agent_score": 11,
+      "opp_score": 0,
+      "win": true,
+      "frames": 13964,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.02104206059646456
+    },
+    {
+      "seed": 17,
+      "agent_score": 11,
+      "opp_score": 1,
+      "win": true,
+      "frames": 17772,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.022795997969023846
+    },
+    {
+      "seed": 18,
+      "agent_score": 11,
+      "opp_score": 0,
+      "win": true,
+      "frames": 10318,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.021207756516409475
+    },
+    {
+      "seed": 19,
+      "agent_score": 11,
+      "opp_score": 2,
+      "win": true,
+      "frames": 15266,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.023425085714466616
+    },
+    {
+      "seed": 20,
+      "agent_score": 11,
+      "opp_score": 0,
+      "win": true,
+      "frames": 16720,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.018404530420367934
+    },
+    {
+      "seed": 21,
+      "agent_score": 11,
+      "opp_score": 1,
+      "win": true,
+      "frames": 13036,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.02280070638722284
+    },
+    {
+      "seed": 22,
+      "agent_score": 11,
+      "opp_score": 2,
+      "win": true,
+      "frames": 12631,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.02966977405356463
+    },
+    {
+      "seed": 23,
+      "agent_score": 11,
+      "opp_score": 4,
+      "win": true,
+      "frames": 19151,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.024473240656920667
+    },
+    {
+      "seed": 24,
+      "agent_score": 11,
+      "opp_score": 1,
+      "win": true,
+      "frames": 13111,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.022355727091390505
+    },
+    {
+      "seed": 25,
+      "agent_score": 11,
+      "opp_score": 1,
+      "win": true,
+      "frames": 13826,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.02269891738031686
+    },
+    {
+      "seed": 26,
+      "agent_score": 11,
+      "opp_score": 1,
+      "win": true,
+      "frames": 11919,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.023327701188789244
+    },
+    {
+      "seed": 27,
+      "agent_score": 11,
+      "opp_score": 0,
+      "win": true,
+      "frames": 11437,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.021530554802722802
+    },
+    {
+      "seed": 28,
+      "agent_score": 11,
+      "opp_score": 0,
+      "win": true,
+      "frames": 9318,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.029448197339950345
+    },
+    {
+      "seed": 29,
+      "agent_score": 11,
+      "opp_score": 4,
+      "win": true,
+      "frames": 19489,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.02236476959021528
+    },
+    {
+      "seed": 30,
+      "agent_score": 11,
+      "opp_score": 2,
+      "win": true,
+      "frames": 14381,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.024703153281413374
+    },
+    {
+      "seed": 31,
+      "agent_score": 11,
+      "opp_score": 0,
+      "win": true,
+      "frames": 11472,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.023323773010163112
+    },
+    {
+      "seed": 32,
+      "agent_score": 11,
+      "opp_score": 0,
+      "win": true,
+      "frames": 12176,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.020249459897194073
+    },
+    {
+      "seed": 33,
+      "agent_score": 11,
+      "opp_score": 1,
+      "win": true,
+      "frames": 14983,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.021536704552350048
+    },
+    {
+      "seed": 34,
+      "agent_score": 11,
+      "opp_score": 0,
+      "win": true,
+      "frames": 13950,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.021306464359604035
+    },
+    {
+      "seed": 35,
+      "agent_score": 11,
+      "opp_score": 2,
+      "win": true,
+      "frames": 15304,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.02404623882992365
+    },
+    {
+      "seed": 36,
+      "agent_score": 11,
+      "opp_score": 0,
+      "win": true,
+      "frames": 12986,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.023104581484621474
+    },
+    {
+      "seed": 37,
+      "agent_score": 11,
+      "opp_score": 1,
+      "win": true,
+      "frames": 15944,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.021025042046401304
+    },
+    {
+      "seed": 38,
+      "agent_score": 10,
+      "opp_score": 4,
+      "win": true,
+      "frames": 20000,
+      "hit_frame_cap": true,
+      "mean_track_err": 0.02560681912146491
+    },
+    {
+      "seed": 39,
+      "agent_score": 11,
+      "opp_score": 1,
+      "win": true,
+      "frames": 12068,
+      "hit_frame_cap": false,
+      "mean_track_err": 0.024075823200079432
+    }
+  ]
+}
