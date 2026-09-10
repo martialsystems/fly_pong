@@ -1,0 +1,53 @@
+{
+  "written_before_run": true,
+  "date": "2026-09-10",
+  "title": "commit-if-reachable",
+  "log_line": "Landing is a commit gate: incoming and reach <= tau, then bang-bang to intercept Y; else error_y. Contact, not placement. Same bars as the setpoint run. No C file. Self-play stays locked.",
+  "what": "Veto on the existing 24-frame window. Steal the landing primitive as when to stop tracking and stab. Do not open a fruit-landing aim title.",
+  "rule": {
+    "tau": "frames_to_paddle (time_to_own_paddle)",
+    "reach": "abs(Y_pred - paddle_center) / paddle_speed",
+    "commit": "incoming AND frames_to_paddle <= 24 AND reach <= tau",
+    "on_commit": "bang-bang to intercept Y (predicted_contact_y). Not desired_offset.",
+    "on_abort": "error_y chase",
+    "paddle_center": "paddle_y + paddleH/2. Contact body, not the top edge."
+  },
+  "do_not": [
+    "Fire when reach > tau (that reprints the 7/40 setpoint).",
+    "Lunge to desired_offset and call it landing.",
+    "Olfaction / find the fruit.",
+    "Whole-brain landing slots.",
+    "Beat Saber slashes.",
+    "Widen AIM_N past 24.",
+    "Loosen leak 0.08.",
+    "Unlock C on open-hit alone.",
+    "Fork bounce.",
+    "Another lag run.",
+    "Write a C hypothesis from this file."
+  ],
+  "prior": {
+    "file": "logs/aim_setpoint.json",
+    "leak": 0.179,
+    "signed_open_geo": 0.821,
+    "matches": "7/40",
+    "points": "253-375 vs move-only 263-289",
+    "note": "Setpoint was land-at-offset in the window. Geo held, scoring died. A peach does not add pixels per frame."
+  },
+  "eval": {
+    "n": 40,
+    "seed0": 0,
+    "opponent": "frozen_phase_a",
+    "weights": "artifacts/device.pt",
+    "aim_n": 24
+  },
+  "pass": {
+    "leak_max": 0.08,
+    "signed_open_geo_min": 0.80,
+    "scoring_key": "matches",
+    "matches_min": 13,
+    "matches_note": "move-only was 12/40 vs this freeze. Need >= 13/40. Points are reported and are not a pass key.",
+    "rule": "All three: leak <= 0.08 AND signed_open_geo >= 0.80 AND wins >= 13. Fail any one: stop. Landing does not choose sign(offset). Geo 0.80 is a placement bar this veto is not built to clear."
+  },
+  "selfplay": "locked",
+  "write_c_hypothesis": false
+}

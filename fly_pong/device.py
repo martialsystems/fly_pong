@@ -8,6 +8,7 @@ from typing import Any
 import numpy as np
 import torch
 
+from fly_pong.commit import should_commit
 from fly_pong.constants import load_constants
 from fly_pong.features import AIM_KEYS, AIM_N, MOVE_KEYS, FeatureEncoder
 
@@ -38,11 +39,9 @@ class FlyPongDevice:
         self.aim_router = SoftmaxRouter(len(AIM_KEYS), bias=_aim_bias())
         self.aim_n = int(aim_n)
         self.C = load_constants()
-        self._aim_setpoint = None
 
     def reset(self) -> None:
         self.encoder.reset()
-        self._aim_setpoint = None
 
     def parameters_move(self):
         return self.move_router.parameters()
@@ -56,24 +55,31 @@ class FlyPongDevice:
         u_off = float(np.clip(self.aim_router.command_np(bank.aim), -1.0, 1.0))
         if abs(u_off) > 0.05:
             u_off = 1.0 if u_off > 0.0 else -1.0
-        aim_active = bool(bank.incoming and bank.frames_to_paddle <= self.aim_n)
         speed = float(self.C["paddleSpeed"])
         ph = float(self.C["paddleH"])
         py = float(state.get("paddle_y", state.get("agent_y")))
-        if not aim_active:
-            self._aim_setpoint = None
-        elif self._aim_setpoint is None:
-            self._aim_setpoint = float(bank.predicted_contact_y_px)
-        if aim_active:
-            target_center = float(self._aim_setpoint) - u_off * (ph / 2.0)
-            target_y = target_center - ph / 2.0
-            err = target_y - py
+        paddle_center = float(py + ph / 2.0)
+        y_pred = float(bank.predicted_contact_y_px)
+        tau = float(bank.frames_to_paddle)
+        commit = should_commit(
+            incoming=bool(bank.incoming),
+            tau=tau,
+            y_pred=y_pred,
+            paddle_center=paddle_center,
+            paddle_speed=speed,
+            window=float(self.aim_n),
+        )
+        in_window = bool(bank.incoming and tau <= float(self.aim_n))
+        if commit:
+            err = y_pred - paddle_center
             if err > 1.0:
                 dy = speed
             elif err < -1.0:
                 dy = -speed
             else:
                 dy = 0.0
+            applied_u = 0.0
+            target_center = y_pred
         else:
             if u_dy > 0.02:
                 dy = speed
@@ -81,6 +87,8 @@ class FlyPongDevice:
                 dy = -speed
             else:
                 dy = 0.0
+            applied_u = 0.0
+            target_center = paddle_center
         action = 0
         if dy < -0.5:
             action = 1
@@ -90,13 +98,15 @@ class FlyPongDevice:
             "dy": dy,
             "action": action,
             "u_dy": u_dy,
-            "u_offset": u_off,
-            "aim_active": aim_active,
-            "target_center_px": float(
-                (self._aim_setpoint if self._aim_setpoint is not None else bank.predicted_contact_y_px)
-                - u_off * (ph / 2.0)
-            ),
-            "paddle_center_px": float(py + ph / 2.0),
+            "u_offset": applied_u,
+            "u_offset_head": u_off,
+            "aim_active": commit,
+            "commit": commit,
+            "in_window": in_window,
+            "reach": abs(y_pred - paddle_center) / max(speed, 1e-6),
+            "tau": tau,
+            "target_center_px": float(target_center),
+            "paddle_center_px": paddle_center,
             "g_move": self.move_router.gates_np(),
             "g_aim": self.aim_router.gates_np(),
             "bank": bank,

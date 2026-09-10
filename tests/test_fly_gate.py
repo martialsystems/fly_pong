@@ -29,7 +29,7 @@ def test_readme_quotes_lock_files():
     assert "logs/fly_gate.json" in text
     assert "logs/fly_gate_motion_only.json" in text
     assert "20,000-frame cap at 10-4" in text
-    assert "## Results" in text
+    assert "## Locked numbers" in text
     assert "—" not in text
     assert "What it is not" not in text
     assert "What this is not" not in text

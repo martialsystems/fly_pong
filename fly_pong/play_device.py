@@ -92,6 +92,8 @@ def play_match(
     contacts = 0
     incoming = 0
     aim_on = 0
+    window_on = 0
+    abort_on = 0
     aim_off_steer = 0
     open_hits = 0
     contact_log: list[dict[str, Any]] = []
@@ -109,8 +111,10 @@ def play_match(
         agent_dy = float(cmd["dy"])
         if cmd["aim_active"]:
             aim_on += 1
-        elif abs(cmd["u_offset"]) > 0:
-            pass
+        if cmd.get("in_window"):
+            window_on += 1
+            if not cmd.get("commit"):
+                abort_on += 1
         if (not cmd["aim_active"]) and abs(agent_dy) > 0 and cmd["bank"].incoming is False:
             pass
         if cmd["bank"].incoming:
@@ -191,6 +195,8 @@ def play_match(
         "contacts": contacts,
         "incoming_frames": incoming,
         "aim_active_frames": aim_on,
+        "window_frames": window_on,
+        "abort_frames": abort_on,
         "contact_rate": (contacts / float(contacts + opp)) if (contacts + opp) else 0.0,
         "open_hit_rate": (open_hits / float(contacts)) if contacts else 0.0,
         "mean_track_err": float(np.mean(track)) if track else 1.0,

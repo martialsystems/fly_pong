@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Fly Pong</title>
-  <meta name="description" content="Play Pong against a small neural policy running in your browser." />
+  <title>Pong</title>
+  <meta name="description" content="Play Pong against a 6-input PPO policy running in your browser." />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
   <div class="wrap">
     <header>
-      <h1>Fly Pong</h1>
-      <p class="lede">You are the left paddle. The right paddle is a 6-input policy trained offline and frozen as ONNX. Inference stays in this page.</p>
+      <h1>Pong</h1>
+      <p class="lede">You are the left paddle. The right paddle is a 6-input PPO, trained offline, frozen as ONNX. Inference stays in this page.</p>
     </header>
     <div class="play">
       <div class="stage">
@@ -40,7 +40,7 @@
       </div>
     </div>
     <footer>
-      <p>Martial Systems · first to 11 · <a href="https://github.com/martialsystems/fly_pong">source</a></p>
+      <p>Martial Systems · first to 11 · 6-d PPO · <a href="https://github.com/martialsystems/fly_pong">source</a></p>
     </footer>
   </div>
   <script type="module" src="js/game.js"></script>
