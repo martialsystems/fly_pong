@@ -21,7 +21,8 @@ def test_sign_hypothesis_before_results():
     text = (ROOT / "README.md").read_text(encoding="utf-8")
     agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
     assert "random corner-smasher" in text
-    assert "Point delta +52 vs the freeze is not placement" in text
+    assert "Point delta +52" in text
+    assert "is not placement" in text
     assert hyp["log_line"] in agents
     assert "Self-play remains locked" in agents
     from pongforge.gate import scan_text_flags

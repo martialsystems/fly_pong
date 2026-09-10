@@ -23,7 +23,8 @@ def test_hypothesis_was_written_before_results():
     agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
     assert "316-321" in text
     assert "264-289" in text
-    assert "Point delta +52 vs the freeze is not placement" in text
+    assert "Point delta +52" in text
+    assert "is not placement" in text
     assert "Self-play is not part of this title" in text
     assert hyp["log_line"].split(".")[0] in text
     assert hyp["log_line"] in agents

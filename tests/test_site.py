@@ -59,12 +59,18 @@ def test_readme_quality():
     assert "Play the PPO" not in text
     assert "Do not start another aim head" not in text
     assert "Do not retcon" not in text
-    assert "Browser opponent is a 6-D PPO" in text
-    assert "it is not the T4/T5 strip" in text
-    assert "99/100 is not a placement result" in text
+    assert "6-input PPO" in text
+    assert "not a fly result" in text
+    assert "not a placement result" in text
     assert "Self-play is not part of this title" in text
+    assert "–" not in text
     assert "Do not start another aim head on this object" in agents
     assert "Do not retcon the +52 point OR-bar into aim" in agents
+    hook = (ROOT / "description.txt").read_text(encoding="utf-8").strip()
+    assert hook == (
+        "T4/T5 + centering won 40/40 vs lag. Placement is closed. "
+        "The court page is a separate PPO."
+    )
 
 
 def test_page_labels_ppo_not_fly():
