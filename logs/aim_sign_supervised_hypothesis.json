@@ -1,0 +1,35 @@
+{
+  "written_before_run": true,
+  "date": "2026-09-10",
+  "log_line": "Signed-open missed both bars. Command 0.65 vs geo 0.54 is leak, not a title. Next is supervised sign with a geo bar and a leak cap; miss that and aim is retired as a head.",
+  "prior": {
+    "file": "logs/aim_sign.json",
+    "signed_open_move": 0.469,
+    "signed_open_aim": 0.542,
+    "signed_open_cmd_aim": 0.647,
+    "open_hit_delta": 0.037,
+    "geo_aim": 0.78,
+    "note": "Command matched the gap 0.65; bounce 0.54. Do not unlock self-play. Do not run lag."
+  },
+  "train": {
+    "loss": "sign(u_offset) == sign(gap); keep |u_offset| away from 0",
+    "opponent": "frozen_phase_a",
+    "aim_n": 24,
+    "widen_window": false
+  },
+  "eval": {
+    "n": 40,
+    "seed0": 0,
+    "same_seeds": true,
+    "opponent": "frozen_phase_a",
+    "move_only_signed_open_baseline": 0.469,
+    "log": ["signed_open_cmd", "signed_open_geo", "open_hit", "abs_geo"]
+  },
+  "pass": {
+    "signed_open_geo_min": 0.569,
+    "signed_open_geo_delta_min": 0.10,
+    "leak_max": 0.08,
+    "rule": "Both: signed_open_geo >= 0.569 (Δ ≥ +0.10 vs move-only 0.469) AND (signed_open_cmd - signed_open_geo) <= 0.08. If cmd rises and geo does not, the bounce map is the limit and aim is retired as a head. Open-hit Δ ≥ +0.08 is required to unlock self-play; it is not required to keep the head."
+  },
+  "selfplay": "locked_until_geo_pass_and_open_hit_delta_0.08"
+}

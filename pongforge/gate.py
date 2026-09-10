@@ -107,7 +107,7 @@ def require_can_train_aim() -> None:
 
 
 def load_aim_beats_returner() -> bool:
-    path = LOGS / "aim_sign.json"
+    path = LOGS / "aim_sign_supervised.json"
     if not path.is_file():
         return False
     data = json.loads(path.read_text(encoding="utf-8"))
