@@ -1,0 +1,31 @@
+{
+  "written_before_run": true,
+  "date": "2026-09-10",
+  "log_line": "Aim is coupled to bounce (|geo| 0.78) and buys points vs a tracker (+52) without clearing placement (open-hit +0.037). Self-play remains locked.",
+  "prior": {
+    "file": "logs/aim_vs_returner.json",
+    "note": "OR-bar passed on +52 points. Open-hit +0.037. That is not placement. Do not retcon."
+  },
+  "opponent": "frozen_phase_a",
+  "n": 40,
+  "seed0": 0,
+  "arms": ["move_only", "move_aim"],
+  "same_seeds": true,
+  "do_not": [
+    "more steps vs lag",
+    "widen the aim window",
+    "call +52 points aim solved",
+    "unlock self-play on point delta"
+  ],
+  "metrics": {
+    "signed_open": "fraction of contacts where sign(geo_offset) equals sign(open_side); open_side is +1 if more court below the opponent paddle",
+    "signed_open_cmd": "same using sign(u_offset) only when aim is active, else 0",
+    "opp_landing_dist": "mean |predicted landing Y at far paddle - opponent center| after bounce"
+  },
+  "pass": {
+    "signed_open_delta_min": 0.10,
+    "open_hit_delta_min": 0.08,
+    "rule": "aim wins only if (signed_open_aim - signed_open_move) >= 0.10 AND (open_hit_aim - open_hit_move) >= 0.08. Point totals are reported and are not a pass key. If |geo| stays high and signed_open stays near 0.5, the head is a random corner-smasher."
+  },
+  "selfplay": "locked_until_pass"
+}

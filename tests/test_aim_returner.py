@@ -22,5 +22,5 @@ def test_hypothesis_was_written_before_results():
     text = (ROOT / "README.md").read_text(encoding="utf-8")
     assert "316-321" in text
     assert "264-289" in text
-    assert "Self-play stays locked" in text
+    assert "Self-play remains locked" in text or "Self-play stays locked" in text
     assert hyp["log_line"].split(".")[0] in text

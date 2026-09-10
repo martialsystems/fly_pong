@@ -28,7 +28,11 @@ Copied from `logs/device_move.json` and `logs/device_aim.json`, n=40, seed 0, la
 
 Phase A mastered tracking via error_y. Phase B vs lag did not beat chase at placement (open-hit ~0.5). The clock channel `predicted_contact_t` is out of the aim bank.
 
-Vs a frozen Phase A returner, same 40 seeds (`logs/aim_hypothesis.json` written first, then `logs/aim_vs_returner.json`): move-only 12/40, 264-289, open-hit 0.531. Move+aim (24-frame window, full half-paddle target) 18/40, 316-321, open-hit 0.568. Point delta +52 clears the written +40 bar. Open-hit delta +0.037 does not clear +0.08. `desired_offset` gate 0.495. Geometric |offset| 0.35 → 0.78, so the bounce is coupled. Self-play stays locked (open-hit 0.568, not 0.65).
+Vs a frozen Phase A returner, same 40 seeds (`logs/aim_hypothesis.json` then `logs/aim_vs_returner.json`): move-only 12/40, 264-289, open-hit 0.531. Move+aim 18/40, 316-321, open-hit 0.568. Point delta +52 cleared a loose OR-bar. Open-hit +0.037 did not. That is not placement.
+
+Signed-open eval (`logs/aim_sign_hypothesis.json` written first, then `logs/aim_sign.json`): sign(geo) vs open side 0.469 → 0.542 (Δ +0.073, bar +0.10). Open-hit Δ still +0.037 (bar +0.08). |geo| 0.78 with signed-open 0.54 is a random corner-smasher: fat offsets, half of them still to the covered side. Landing distance vs the far paddle fell 163 → 140. Command sign matched the gap 0.65 of the time; the bounce did not. Pass failed. Self-play remains locked.
+
+Aim is coupled to bounce (|geo| 0.78) and buys points vs a tracker (+52) without clearing placement (open-hit +0.037). Self-play remains locked.
 
 PPO on the 6-number box, 100 games, was 99/100 (`public/models/pong.onnx`). That net does not share weights with the fly loop or the device.
 
@@ -61,6 +65,7 @@ PYTHONPATH=. .venv/bin/python scripts/train_move.py
 PYTHONPATH=. .venv/bin/python scripts/eval_device.py --out logs/device_move.json
 PYTHONPATH=. .venv/bin/python scripts/train_aim.py
 PYTHONPATH=. .venv/bin/python scripts/eval_aim_returner.py
+PYTHONPATH=. .venv/bin/python scripts/eval_aim_sign.py
 .venv/bin/python -m http.server 8000 --directory public
 ```
 
@@ -75,7 +80,9 @@ Restamp tables from the JSON if the numbers move.
 | `logs/device_move.json` | Phase A lock |
 | `logs/device_aim.json` | Phase B vs lag (null placement) |
 | `logs/aim_hypothesis.json` | Pass/fail written before the returner eval |
-| `logs/aim_vs_returner.json` | Move-only vs move+aim vs Phase A |
+| `logs/aim_vs_returner.json` | Move-only vs move+aim vs Phase A (thin point pass) |
+| `logs/aim_sign_hypothesis.json` | Signed-open pass/fail, written first |
+| `logs/aim_sign.json` | Signed-open vs Phase A (fail; corner-smasher) |
 | `fly_pong/features.py` | Named move/aim channels |
 | `fly_pong/routers.py` | Softmax gates |
 | `fly_pong/device.py` | Encode + two heads |

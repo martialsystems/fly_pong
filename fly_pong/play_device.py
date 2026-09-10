@@ -101,15 +101,26 @@ def play_match(
 
         prev_vx = float(state["ball_vx"])
         prev_open = (h - (state["opp_y"] + ph)) - state["opp_y"]
+        opp_center = float(state["opp_y"]) + ph / 2.0
         state, reward = physics_step(state, agent_dy, opp_dy, C, serve_angle=float(rng.uniform(-C["serveAngleMax"], C["serveAngleMax"])))
         if prev_vx < 0 and float(state["ball_vx"]) > 0:
             contacts += 1
             geo = (float(state["ball_y"]) - (float(state["agent_y"]) + ph / 2.0)) / (ph / 2.0)
+            open_side = 1.0 if prev_open > 0 else (-1.0 if prev_open < 0 else 0.0)
+            applied_u = float(cmd["u_offset"]) if cmd["aim_active"] else 0.0
+            vx = float(state["ball_vx"])
+            far = float(C["oppX"])
+            t_land = (far - float(state["ball_x"])) / vx if vx > 1e-6 else 0.0
+            land_y = float(np.clip(float(state["ball_y"]) + float(state["ball_vy"]) * t_land, 0.0, h))
             contact_log.append(
                 {
-                    "u_offset": float(cmd["u_offset"]),
+                    "u_offset": applied_u,
                     "geo_offset": float(geo),
+                    "open_side": open_side,
                     "aim_active": bool(cmd["aim_active"]),
+                    "signed_open_cmd": int(applied_u * open_side > 0),
+                    "signed_open_geo": int(geo * open_side > 0) if open_side != 0 else 0,
+                    "opp_landing_dist": abs(land_y - opp_center),
                 }
             )
             if prev_open > 0 and state["ball_vy"] > 0:
@@ -141,5 +152,8 @@ def play_match(
         "g_aim": np.mean(np.stack(g_aim), axis=0).tolist() if g_aim else [],
         "mean_abs_u_offset": float(np.mean([abs(c["u_offset"]) for c in contact_log])) if contact_log else 0.0,
         "mean_abs_geo_offset": float(np.mean([abs(c["geo_offset"]) for c in contact_log])) if contact_log else 0.0,
+        "signed_open": float(np.mean([c["signed_open_geo"] for c in contact_log])) if contact_log else 0.0,
+        "signed_open_cmd": float(np.mean([c["signed_open_cmd"] for c in contact_log])) if contact_log else 0.0,
+        "mean_opp_landing_dist": float(np.mean([c["opp_landing_dist"] for c in contact_log])) if contact_log else 0.0,
         "contact_n": len(contact_log),
     }
