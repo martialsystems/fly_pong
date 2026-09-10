@@ -3,21 +3,21 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Pong</title>
-  <meta name="description" content="Play Pong against a 6-input PPO policy running in your browser." />
+  <title>Pong (PPO toy)</title>
+  <meta name="description" content="Play Pong against a 6-input PPO on the same court physics as the lab. This paddle is not the fly controller." />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
   <div class="wrap">
     <header>
       <h1>Pong</h1>
-      <p class="lede">You are the left paddle. The right paddle is a 6-input PPO, trained offline, frozen as ONNX. Inference stays in this page.</p>
+      <p class="lede">You are the left paddle. The right paddle is a 6-input PPO, trained offline, frozen as ONNX. Same court physics as the lab. This paddle is not the fly controller.</p>
     </header>
     <div class="play">
       <div class="stage">
         <div class="scoreboard">
           <div id="score">0  0</div>
-          <div id="ai-status">AI: loading</div>
+          <div id="ai-status">PPO: loading</div>
         </div>
         <div class="court-wrap">
           <canvas id="court" width="480" height="360" aria-label="Pong court"></canvas>
@@ -30,17 +30,17 @@
           <button type="button" data-preset="easy">Easy</button>
           <button type="button" data-preset="normal">Normal</button>
           <button type="button" data-preset="unfair">Unfair</button>
-          <button type="button" data-preset="neural">Neural</button>
+          <button type="button" data-preset="ppo">PPO</button>
         </div>
         <label class="skill">
           Skill <span id="skill-val">0.55</span>
           <input id="skill" type="range" min="0" max="1" step="0.01" value="0.55" />
         </label>
-        <p class="hint">Arrow keys or W/S, or drag on the court. Skill adds reaction delay and random no-ops. Neural is the ONNX net at skill 1. If the net fails to load, the page uses the lag-chase heuristic.</p>
+        <p class="hint">Arrow keys or W/S, or drag on the court. Skill adds reaction delay and random no-ops. PPO is the ONNX net at skill 1. If the net fails to load, the page uses the lag-chase heuristic. This is a toy baseline, not the lab fly loop.</p>
       </div>
     </div>
     <footer>
-      <p>Martial Systems · first to 11 · 6-d PPO · <a href="https://github.com/martialsystems/fly_pong">source</a></p>
+      <p>Martial Systems · first to 11 · 6-d PPO toy · <a href="https://github.com/martialsystems/fly_pong">lab source</a></p>
     </footer>
   </div>
   <script type="module" src="js/game.js"></script>

@@ -348,6 +348,13 @@ def main() -> None:
         if abs(float(row.get("skill") or -1) - 1.0) > 1e-6:
             print("FAIL: skill slider did not accept 1 at", req)
             failed = True
+        status = str(row.get("status") or "")
+        if status.startswith("AI:"):
+            print("FAIL: status still says AI at", req, status)
+            failed = True
+        if "PPO" not in status and "lag-chase" not in status:
+            print("FAIL: status is not PPO or lag-chase at", req, status)
+            failed = True
     if failed:
         raise SystemExit(2)
     print("viewport_sanity pass")

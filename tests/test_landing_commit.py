@@ -29,10 +29,13 @@ def test_landing_commit_hypothesis_and_lock():
     assert res["commit"]["signed_open"] < 0.80
     assert res["commit"]["abort_share"] > 0.0
     text = (ROOT / "README.md").read_text(encoding="utf-8")
-    assert hyp["log_line"] in text
+    agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
+    assert hyp["log_line"] in agents
     assert "17/40" in text
+    assert "0.465" in text
     assert "fruit landing = aim" not in text.lower()
     assert "## Locked numbers" in text
+    assert "Play the PPO" not in text
     from pongforge.gate import scan_text_flags
 
     assert not any(scan_text_flags(text).values())

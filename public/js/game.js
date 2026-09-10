@@ -75,9 +75,9 @@ function draw() {
 }
 
 function updateStatus() {
-  const mode = opponent.status === "onnx" ? "neural (ONNX)" : "heuristic";
+  const mode = opponent.status === "onnx" ? "PPO (ONNX)" : "lag-chase";
   const extra = opponent.error && opponent.status !== "onnx" ? ` · ${opponent.error}` : "";
-  statusEl.textContent = `AI: ${mode}${extra}`;
+  statusEl.textContent = mode + extra;
 }
 
 async function tick() {

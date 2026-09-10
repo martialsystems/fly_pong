@@ -9,6 +9,7 @@ export const PRESETS = {
   easy: 0.25,
   normal: 0.55,
   unfair: 0.9,
+  ppo: 1.0,
   neural: 1.0,
 };
 

@@ -24,8 +24,10 @@ def test_readme_quotes_device_locks():
     assert "predicted_contact_t 0.900" in text
     assert "logs/device_move.json" in text
     assert "logs/device_aim.json" in text
-    assert "Self-play remains locked" in text or "Self-play stays locked" in text
+    assert "Self-play is not part of this title" in text
     assert "aim_hypothesis.json" in text
+    agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
+    assert "Self-play remains locked" in agents or "Self-play stays locked" in agents
     from pongforge.gate import scan_text_flags
 
     flags = scan_text_flags(text)

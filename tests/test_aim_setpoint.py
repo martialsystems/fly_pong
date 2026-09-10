@@ -22,8 +22,10 @@ def test_setpoint_hypothesis_and_lock():
     assert res["selfplay"] == "locked"
     assert res["move_aim"]["wins"] < 13
     text = (ROOT / "README.md").read_text(encoding="utf-8")
-    assert hyp["log_line"] in text
+    agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
+    assert hyp["log_line"] in agents
     assert "7/40" in text
+    assert "Leak is late arrival at the commanded Y (0.95)" in text
     from pongforge.gate import scan_text_flags
 
     assert not any(scan_text_flags(text).values())

@@ -19,7 +19,8 @@ def test_leak_autopsy_hypothesis_and_lock():
     assert res["write_c_hypothesis"] is False
     assert res["selfplay"] == "locked"
     text = (ROOT / "README.md").read_text(encoding="utf-8")
-    assert hyp["log_line"] in text
+    agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
+    assert hyp["log_line"] in agents
     assert "950 control_late" in text
     from pongforge.gate import scan_text_flags
 

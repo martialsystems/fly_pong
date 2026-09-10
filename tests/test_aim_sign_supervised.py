@@ -20,9 +20,11 @@ def test_supervised_sign_hypothesis_and_lock():
     assert res["selfplay"] == "locked"
     assert res["delta_open_hit"] >= 0.08
     text = (ROOT / "README.md").read_text(encoding="utf-8")
-    assert hyp["log_line"] in text
+    agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
+    assert hyp["log_line"] in agents
     assert "0.814" in text or "0.814" in json.dumps(res["move_aim"]["signed_open"])
-    assert "Self-play stays locked" in text or "C stays closed" in text
+    assert "Self-play is not part of this title" in text
+    assert "Self-play stays locked" in agents
     from pongforge.gate import scan_text_flags
 
     assert not any(scan_text_flags(text).values())
