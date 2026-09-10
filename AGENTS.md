@@ -8,7 +8,7 @@ Do not start another aim head on this object. Contact is readable. Placement is 
 
 Do not restamp lag 40/40 or PPO 99/100 onto placement. Do not retcon the +52 point OR-bar into aim. Point delta +52 vs the freeze is not placement. Open-hit stayed under the bar.
 
-Locked rates: `logs/fly_gate.json`, `logs/fly_gate_motion_only.json`, `logs/device_move.json`, `logs/device_aim.json`, `logs/aim_hypothesis.json`, `logs/aim_vs_returner.json`, `logs/aim_sign_hypothesis.json`, `logs/aim_sign.json`. README quotes measured outcomes from those files. Self-play stays locked. Do not widen the aim window past 24. Do not write a C hypothesis while leak > 0.08 or matches < 13/40 vs the freeze, and do not write one from a geo miss. Setpoint lock: `logs/aim_setpoint.json`. Commit veto lock: `logs/landing_commit.json`. Landing is contact (intercept Y when reach ≤ tau). It is not an aim title. Do not train more vs the lag bot to force a title.
+Locked rates: `logs/fly_gate.json`, `logs/fly_gate_motion_only.json`, `logs/device_move.json`, `logs/device_aim.json`, `logs/aim_hypothesis.json`, `logs/aim_vs_returner.json`, `logs/aim_sign_hypothesis.json`, `logs/aim_sign.json`. README quotes measured outcomes from those files. Self-play stays locked. Do not widen the aim window past 24. Do not write a C hypothesis while leak > 0.08 or matches < 13/40 vs the freeze, and do not write one from a geo miss. Setpoint lock: `logs/aim_setpoint.json`. Commit veto lock: `logs/landing_commit.json`. Loom commit lock: `logs/loom_commit.json`. Unused move-gate lock: `logs/unused_move_gates.json`. Landing is contact (intercept Y when reach ≤ tau). It is not an aim title. Do not train more vs the lag bot to force a title. Do not wire CX_heading or MB_value into paddle dy or offset. Do not change `public/`. Do not lengthen the 24-frame window.
 
 Hypothesis log lines (process, not README voice):
 
@@ -18,6 +18,8 @@ Hypothesis log lines (process, not README voice):
 - Supervised sign raised geo signed-open to 0.814 and open-hit to 0.701; leak 0.186 and matches 10/40 failed the AND. Aim stays a head. Self-play stays locked. Next is a leak autopsy, not a physics rewrite dressed as training.
 - Leak is late arrival at the commanded Y (0.95), not walls or inbound vy. Next is setpoint-on-aim-Y in the existing window; physics stays frozen; self-play stays locked.
 - Landing is a commit gate: incoming and reach <= tau, then bang-bang to intercept Y; else error_y. Contact, not placement. Same bars as the setpoint run. No C file. Self-play stays locked.
+- Loom commit/abort: incoming and reach <= tau, bang-bang to Y_pred, else error_y. Window 24. Pass is a goalie veto, not a title. Self-play stays locked.
+- Unused vision channels 1-7 as move gates only. If error_y mass stays >= 0.8, unused vision lost to error_y. Lag 40/40 is chase. Vs Phase A, matches must beat 12/40 to count as useful. Self-play stays locked.
 
 Physics lives in `shared/constants.json` plus `fly_pong/physics.py`. The browser clone is `public/js/physics.js`. After changing constants, run `python scripts/sync_constants.py`. After changing `public/`, publish with `scripts/publish_pages.sh`.
 

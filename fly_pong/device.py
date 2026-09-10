@@ -10,7 +10,7 @@ import torch
 
 from fly_pong.commit import should_commit
 from fly_pong.constants import load_constants
-from fly_pong.features import AIM_KEYS, AIM_N, MOVE_KEYS, FeatureEncoder
+from fly_pong.features import AIM_KEYS, AIM_N, MOVE_KEYS, UNUSED_MOVE_KEYS, FeatureEncoder
 
 from fly_pong.routers import SoftmaxRouter
 
@@ -109,6 +109,8 @@ class FlyPongDevice:
             "paddle_center_px": paddle_center,
             "g_move": self.move_router.gates_np(),
             "g_aim": self.aim_router.gates_np(),
+            "cx_heading": float(bank.cx_heading),
+            "mb_value": float(bank.mb_value),
             "bank": bank,
         }
 
@@ -134,3 +136,137 @@ class FlyPongDevice:
                 # Aim bank changed (clock channel removed). Keep move; reinit aim.
                 pass
         self.aim_n = int(blob.get("aim_n", self.aim_n))
+
+
+class LoomCommitDevice(FlyPongDevice):
+    """Phase A weights plus loom veto. Reach vs paddle_y as registered in EXP 1."""
+
+    def step_command(self, state: dict[str, Any]) -> dict[str, Any]:
+        bank = self.encoder.encode(state)
+        u_dy = self.move_router.command_np(bank.move)
+        speed = float(self.C["paddleSpeed"])
+        ph = float(self.C["paddleH"])
+        py = float(state.get("paddle_y", state.get("agent_y")))
+        paddle_center = float(py + ph / 2.0)
+        y_pred = float(bank.predicted_contact_y_px)
+        tau = float(bank.frames_to_paddle)
+        reach = abs(y_pred - py) / max(speed, 1e-6)
+        commit = bool(bank.incoming and tau <= float(self.aim_n) and reach <= tau)
+        in_window = bool(bank.incoming and tau <= float(self.aim_n))
+        if commit:
+            err = y_pred - paddle_center
+            if err > 1.0:
+                dy = speed
+            elif err < -1.0:
+                dy = -speed
+            else:
+                dy = 0.0
+            target_center = y_pred
+        else:
+            if u_dy > 0.02:
+                dy = speed
+            elif u_dy < -0.02:
+                dy = -speed
+            else:
+                dy = 0.0
+            target_center = paddle_center
+        action = 0
+        if dy < -0.5:
+            action = 1
+        elif dy > 0.5:
+            action = 2
+        return {
+            "dy": dy,
+            "action": action,
+            "u_dy": u_dy,
+            "u_offset": 0.0,
+            "u_offset_head": 0.0,
+            "aim_active": commit,
+            "commit": commit,
+            "in_window": in_window,
+            "reach": reach,
+            "tau": tau,
+            "target_center_px": float(target_center),
+            "paddle_center_px": paddle_center,
+            "g_move": self.move_router.gates_np(),
+            "g_aim": self.aim_router.gates_np(),
+            "cx_heading": float(bank.cx_heading),
+            "mb_value": float(bank.mb_value),
+            "bank": bank,
+        }
+
+
+def _unused_move_bias() -> np.ndarray:
+    n = len(MOVE_KEYS) + len(UNUSED_MOVE_KEYS)
+    b = np.zeros(n, dtype=np.float32)
+    b[MOVE_KEYS.index("error_y")] = 2.5
+    b[MOVE_KEYS.index("VS_down")] = 0.4
+    b[MOVE_KEYS.index("VS_up")] = 0.4
+    return b
+
+
+class UnusedMoveDevice:
+    """Move gates over Phase A channels plus unused vision 1-7. No aim title."""
+
+    def __init__(self, n_ommatidia: int = 32):
+        self.encoder = FeatureEncoder(n_ommatidia)
+        self.move_router = SoftmaxRouter(len(MOVE_KEYS) + len(UNUSED_MOVE_KEYS), bias=_unused_move_bias())
+        self.aim_n = 0
+        self.C = load_constants()
+        self.keys = MOVE_KEYS + UNUSED_MOVE_KEYS
+
+    def reset(self) -> None:
+        self.encoder.reset()
+
+    def parameters_move(self):
+        return self.move_router.parameters()
+
+    def step_command(self, state: dict[str, Any]) -> dict[str, Any]:
+        bank = self.encoder.encode(state)
+        feats = np.concatenate([bank.move, bank.unused], axis=0)
+        u_dy = self.move_router.command_np(feats)
+        speed = float(self.C["paddleSpeed"])
+        ph = float(self.C["paddleH"])
+        py = float(state.get("paddle_y", state.get("agent_y")))
+        paddle_center = float(py + ph / 2.0)
+        if u_dy > 0.02:
+            dy = speed
+        elif u_dy < -0.02:
+            dy = -speed
+        else:
+            dy = 0.0
+        action = 0
+        if dy < -0.5:
+            action = 1
+        elif dy > 0.5:
+            action = 2
+        g = self.move_router.gates_np()
+        return {
+            "dy": dy,
+            "action": action,
+            "u_dy": u_dy,
+            "u_offset": 0.0,
+            "u_offset_head": 0.0,
+            "aim_active": False,
+            "commit": False,
+            "in_window": False,
+            "reach": 0.0,
+            "tau": float(bank.frames_to_paddle),
+            "target_center_px": paddle_center,
+            "paddle_center_px": paddle_center,
+            "g_move": g[: len(MOVE_KEYS)],
+            "g_unused": g[len(MOVE_KEYS) :],
+            "g_aim": np.zeros(len(AIM_KEYS), dtype=np.float32),
+            "cx_heading": float(bank.cx_heading),
+            "mb_value": float(bank.mb_value),
+            "bank": bank,
+        }
+
+    def save(self, path: Path) -> None:
+        path = Path(path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        torch.save({"unused_move": self.move_router.state_dict(), "keys": list(self.keys)}, path)
+
+    def load(self, path: Path) -> None:
+        blob = torch.load(Path(path), map_location="cpu", weights_only=True)
+        self.move_router.load_state_dict(blob["unused_move"])

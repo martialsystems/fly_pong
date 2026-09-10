@@ -101,6 +101,9 @@ def play_match(
     track = []
     g_move = []
     g_aim = []
+    g_unused = []
+    cx_trace = []
+    mb_trace = []
     frames = 0
     ph = float(C["paddleH"])
     h = float(C["height"])
@@ -168,6 +171,8 @@ def play_match(
             }
             contact_log.append(row)
             pending.append(len(contact_log) - 1)
+            if hasattr(device.encoder, "observe_contact"):
+                device.encoder.observe_contact(float(row["signed_open_geo"]))
             if prev_open > 0 and state["ball_vy"] > 0:
                 open_hits += 1
             elif prev_open < 0 and state["ball_vy"] < 0:
@@ -181,6 +186,10 @@ def play_match(
         track.append(abs(center - float(state["ball_y"])) / h)
         g_move.append(cmd["g_move"])
         g_aim.append(cmd["g_aim"])
+        if cmd.get("g_unused") is not None:
+            g_unused.append(cmd["g_unused"])
+        cx_trace.append(float(cmd.get("cx_heading") or 0.0))
+        mb_trace.append(float(cmd.get("mb_value") or 0.5))
         frames += 1
 
     agent = int(state["agent_score"])
@@ -202,6 +211,9 @@ def play_match(
         "mean_track_err": float(np.mean(track)) if track else 1.0,
         "g_move": np.mean(np.stack(g_move), axis=0).tolist() if g_move else [],
         "g_aim": np.mean(np.stack(g_aim), axis=0).tolist() if g_aim else [],
+        "g_unused": np.mean(np.stack(g_unused), axis=0).tolist() if g_unused else [],
+        "mean_cx_heading": float(np.mean(cx_trace)) if cx_trace else 0.0,
+        "mean_mb_value": float(np.mean(mb_trace)) if mb_trace else 0.5,
         "mean_abs_u_offset": float(np.mean([abs(c["u_offset"]) for c in contact_log])) if contact_log else 0.0,
         "mean_abs_geo_offset": float(np.mean([abs(c["geo_offset"]) for c in contact_log])) if contact_log else 0.0,
         "signed_open": float(np.mean([c["signed_open_geo"] for c in contact_log])) if contact_log else 0.0,

@@ -57,6 +57,17 @@ Point delta +52 (316-321 vs 264-289) is not placement. Open-hit stayed under the
 
 Landing is contact. Contact was already solved. The commit gate is incoming and reach ≤ tau, then intercept Y; otherwise error_y.
 
+### Unused parts as features and gates
+
+Hypothesis files written first. Cheap filters on the court state and 1-D strip. No NeuroArch query. No Neurokernel. CX_heading and MB_value are traces in the eval dumps, not wired into dy or offset.
+
+| Run | Log | Result |
+|-----|-----|--------|
+| Loom commit/abort | `logs/loom_commit.json` | Vs frozen Phase A, n=40. Leak 0.000, contact 0.957, matches 17/40, points 261-260 vs move-only 11/40, 262-291, contact 0.951. Window 24. Offset off. Pass as a goalie veto. |
+| Unused move gates | `logs/unused_move_gates.json` | Channels 1-7 on a separate move bank. error_y mass 0.973. Unused vision lost to error_y. Vs lag 40/40, 439-61 (chase, not a title). Vs Phase A 23/40, 283-277. Next unused mass is LC11_dark 0.011. Fail the pre-registered error_y bar. |
+
+error_y won the move gates (unused vision lost to error_y). The loom veto beat 12/40 (17/40). Unused parts retargeted; plant unchanged; titles unchanged.
+
 ### Browser PPO
 
 PPO on the 6-number box, 100 games: 99/100 (`public/models/pong.onnx`). That net does not share weights with the fly loop or the device.
@@ -98,6 +109,9 @@ PYTHONPATH=. .venv/bin/python scripts/eval_aim_sign_supervised.py
 PYTHONPATH=. .venv/bin/python scripts/eval_aim_leak.py
 PYTHONPATH=. .venv/bin/python scripts/eval_aim_setpoint.py
 PYTHONPATH=. .venv/bin/python scripts/eval_landing_commit.py
+PYTHONPATH=. .venv/bin/python scripts/eval_loom_commit.py
+PYTHONPATH=. .venv/bin/python scripts/train_unused_move.py
+PYTHONPATH=. .venv/bin/python scripts/eval_unused_move_gates.py
 .venv/bin/python -m http.server 8000 --directory public
 ```
 
@@ -126,7 +140,11 @@ After changing `public/`, publish with `scripts/publish_pages.sh`. Restamp table
 | `logs/aim_setpoint.json` | Freeze-Y in window: leak 0.179, 7/40 |
 | `logs/landing_commit_hypothesis.json` | Commit veto pass/fail, written first |
 | `logs/landing_commit.json` | Reachable lunge to intercept Y: leak 0, 17/40, geo 0.465 |
-| `fly_pong/features.py` | Named move/aim channels |
+| `logs/loom_commit_hypothesis.json` | Loom veto pass/fail, written first |
+| `logs/loom_commit.json` | Loom commit vs Phase A: leak 0, 17/40 |
+| `logs/unused_move_gates_hypothesis.json` | Unused move-gate pass/fail, written first |
+| `logs/unused_move_gates.json` | error_y 0.973; unused vision lost |
+| `fly_pong/features.py` | Named move/aim channels plus unused 1-7 |
 | `fly_pong/routers.py` | Softmax gates |
 | `fly_pong/device.py` | Encode + two heads + commit veto |
 | `fly_pong/commit.py` | Reach ≤ tau; intercept Y, not offset |
@@ -134,6 +152,9 @@ After changing `public/`, publish with `scripts/publish_pages.sh`. Restamp table
 | `scripts/eval_fly.py` | Hand-loop match rate |
 | `scripts/eval_device.py` | Contact, points, gates |
 | `scripts/eval_landing_commit.py` | Commit veto vs Phase A freeze |
+| `scripts/eval_loom_commit.py` | Loom veto vs Phase A freeze |
+| `scripts/train_unused_move.py` | Refit move gates over unused 1-7 |
+| `scripts/eval_unused_move_gates.py` | Unused gates vs lag and Phase A |
 | `public/` | Canvas 6-D PPO opponent (not the fly loop) |
 | `scripts/publish_pages.sh` | Copy `public/` onto `gh-pages` |
 

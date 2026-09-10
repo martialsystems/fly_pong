@@ -1,0 +1,34 @@
+{
+  "written_before_run": true,
+  "date": "2026-09-10",
+  "title": "loom-commit-abort",
+  "log_line": "Loom commit/abort: incoming and reach <= tau, bang-bang to Y_pred, else error_y. Window 24. Pass is a goalie veto, not a title. Self-play stays locked.",
+  "what": "LPLC_loom is tau = dist_x / |vx| when incoming. LC4_loom_center is that loom in own half, logged, not an extra AND. Reach uses paddle_y as registered.",
+  "rule": {
+    "tau": "LPLC_loom = time_to_own_paddle (dist_x / |vx| when incoming)",
+    "reach": "abs(Y_pred - paddle_y) / paddle_speed",
+    "commit": "incoming AND tau <= 24 AND reach <= tau",
+    "on_commit": "bang-bang to Y_pred (intercept). Not desired_offset.",
+    "on_abort": "error_y chase",
+    "window_frames": 24,
+    "weights": "artifacts/device.pt move gates, aim idle"
+  },
+  "eval": {
+    "n": 40,
+    "seed0": 0,
+    "opponent": "frozen_phase_a",
+    "move_only_floor": 12
+  },
+  "pass": {
+    "leak_max": 0.08,
+    "supervised_leak_baseline": 0.186,
+    "leak_or": "If aim offset is off, leak is undefined as a placement leak; then require contact_rate >= move-only arm.",
+    "matches_min": 13,
+    "matches_not_below_move_only": 12,
+    "rule": "All: (leak <= 0.08 OR (offset off AND contact_rate >= move-only)) AND wins >= 13 AND wins >= 12. Fail any: stop. Pass = commit veto helps goalie, not a title."
+  },
+  "selfplay": "locked",
+  "write_c_hypothesis": false,
+  "widen_window": false,
+  "public": "unchanged"
+}

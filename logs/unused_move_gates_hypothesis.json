@@ -1,0 +1,40 @@
+{
+  "written_before_run": true,
+  "date": "2026-09-10",
+  "title": "unused-move-gates",
+  "log_line": "Unused vision channels 1-7 as move gates only. If error_y mass stays >= 0.8, unused vision lost to error_y. Lag 40/40 is chase. Vs Phase A, matches must beat 12/40 to count as useful. Self-play stays locked.",
+  "what": "HS_close, LPi_opp, LC10_track, LC11_dark, LC18_fine, LPLC_loom, LC4_loom_center added to a separate move bank. Refit softmax move gates only. Bang-bang on the gated sum. No setpoint-aim. CX_heading and MB_value are traces, not wired into dy or offset.",
+  "channels": [
+    "HS_close",
+    "LPi_opp",
+    "LC10_track",
+    "LC11_dark",
+    "LC18_fine",
+    "LPLC_loom",
+    "LC4_loom_center"
+  ],
+  "train": {
+    "gates": "move only",
+    "init_bias": "error_y 2.5, VS_up/down 0.4, unused 0",
+    "overwrite_device_pt": false,
+    "out": "artifacts/device_unused_move.pt",
+    "vs_lag_is_title": false
+  },
+  "eval": {
+    "n": 40,
+    "seed0": 0,
+    "opponents": ["lag", "frozen_phase_a"],
+    "move_only_floor_vs_phase_a": 12
+  },
+  "pre_register": {
+    "error_y_mass_min_to_call_lost": 0.8,
+    "if_error_y_stays": "log unused vision lost to error_y and stop. That is a result.",
+    "lag_40_40": "not a title",
+    "phase_a_useful": "wins > 12/40"
+  },
+  "selfplay": "locked",
+  "write_c_hypothesis": false,
+  "widen_window": false,
+  "public": "unchanged",
+  "cx_mb": "traces in eval dumps only"
+}
