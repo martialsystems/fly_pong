@@ -36,9 +36,11 @@ Supervised sign (`logs/aim_sign_supervised_hypothesis.json` then `logs/aim_sign_
 
 Signed-open missed both bars. Command 0.65 vs geo 0.54 is leak, not a title. Next is supervised sign with a geo bar and a leak cap; miss that and aim is retired as a head. The supervised run cleared geo and open-hit and missed the leak cap, so the head stays and C stays closed.
 
-Leak autopsy (`logs/aim_leak_hypothesis.json` then `logs/aim_leak.json`), same 40 seeds, dump of the 1000/5372 leak contacts: 950 control_late (paddle_err > 7 px), 47 inbound-vy dominates offset, 3 wall-before-landing. Physics share 0.05, control share 0.95. Bounce law is not the cap. Landing dist 111. No C hypothesis. Self-play stays locked.
+Leak autopsy (`logs/aim_leak_hypothesis.json` then `logs/aim_leak.json`), same 40 seeds, dump of the 1000/5372 leak contacts: 950 control_late (paddle_err > 7 px), 47 inbound-vy dominates offset, 3 wall-before-landing. Physics share 0.05, control share 0.95. Bounce law is not the cap. Landing dist 111. No C hypothesis. Self-play stays locked. Supervised sign raised geo signed-open to 0.814 and open-hit to 0.701; leak 0.186 and matches 10/40 failed the AND. Aim stays a head. Self-play stays locked. Next is a leak autopsy, not a physics rewrite dressed as training.
 
-Supervised sign raised geo signed-open to 0.814 and open-hit to 0.701; leak 0.186 and matches 10/40 failed the AND. Aim stays a head. Self-play stays locked. Next is a leak autopsy, not a physics rewrite dressed as training.
+Setpoint run (`logs/aim_setpoint_hypothesis.json` then `logs/aim_setpoint.json`): freeze intercept Y at window open, bang-bang in 24 frames. Leak 0.179 (bar 0.08), geo 0.821 (bar 0.80), matches 7/40 (bar 13). Fail leak and scoring. Geo held. Window not widened. No C file.
+
+Leak is late arrival at the commanded Y (0.95), not walls or inbound vy. Next is setpoint-on-aim-Y in the existing window; physics stays frozen; self-play stays locked.
 
 PPO on the 6-number box, 100 games, was 99/100 (`public/models/pong.onnx`). That net does not share weights with the fly loop or the device.
 
@@ -75,6 +77,7 @@ PYTHONPATH=. .venv/bin/python scripts/eval_aim_sign.py
 PYTHONPATH=. .venv/bin/python scripts/train_aim_sign.py
 PYTHONPATH=. .venv/bin/python scripts/eval_aim_sign_supervised.py
 PYTHONPATH=. .venv/bin/python scripts/eval_aim_leak.py
+PYTHONPATH=. .venv/bin/python scripts/eval_aim_setpoint.py
 .venv/bin/python -m http.server 8000 --directory public
 ```
 
@@ -96,6 +99,8 @@ Restamp tables from the JSON if the numbers move.
 | `logs/aim_sign_supervised.json` | Geo bar hit, leak cap missed, C locked |
 | `logs/aim_leak_hypothesis.json` | Leak autopsy pass/fail, written first |
 | `logs/aim_leak.json` | 1000 leak rows; control 0.95, physics 0.05 |
+| `logs/aim_setpoint_hypothesis.json` | Control-run pass/fail, written first |
+| `logs/aim_setpoint.json` | Freeze-Y in window: leak 0.179, 7/40 |
 | `fly_pong/features.py` | Named move/aim channels |
 | `fly_pong/routers.py` | Softmax gates |
 | `fly_pong/device.py` | Encode + two heads |

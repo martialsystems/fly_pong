@@ -1,0 +1,35 @@
+{
+  "written_before_run": true,
+  "date": "2026-09-10",
+  "log_line": "Leak is late arrival at the commanded Y (0.95), not walls or inbound vy. Next is setpoint-on-aim-Y in the existing window; physics stays frozen; self-play stays locked.",
+  "prior": {
+    "file": "logs/aim_leak.json",
+    "control_late": 950,
+    "physics_wall": 3,
+    "physics_inbound": 47,
+    "n_leak": 1000,
+    "note": "Do not widen the window. Do not run lag. Do not fork bounce. Do not write a C file."
+  },
+  "control": {
+    "window_frames": 24,
+    "in_window": "paddle setpoint = frozen aim target Y, bang-bang at full paddleSpeed",
+    "outside_window": "error_y chase",
+    "freeze": "lock intercept Y when the window opens; do not chase a moving prediction"
+  },
+  "eval": {
+    "n": 40,
+    "seed0": 0,
+    "opponent": "frozen_phase_a",
+    "weights": "artifacts/device_aim_sign.pt"
+  },
+  "pass": {
+    "leak_max": 0.08,
+    "signed_open_geo_min": 0.80,
+    "scoring_key": "matches",
+    "matches_min": 13,
+    "matches_note": "move-only was 12/40 vs this freeze. Need >= 13/40. Points 264-289 are not a pass key.",
+    "rule": "All three: leak <= 0.08 AND signed_open_geo >= 0.80 AND wins >= 13. Fail any one: stop. If leak falls and wins stay <= 10, better painter worse player; still no C."
+  },
+  "selfplay": "locked",
+  "write_c_hypothesis": false
+}

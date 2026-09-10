@@ -38,9 +38,11 @@ class FlyPongDevice:
         self.aim_router = SoftmaxRouter(len(AIM_KEYS), bias=_aim_bias())
         self.aim_n = int(aim_n)
         self.C = load_constants()
+        self._aim_setpoint = None
 
     def reset(self) -> None:
         self.encoder.reset()
+        self._aim_setpoint = None
 
     def parameters_move(self):
         return self.move_router.parameters()
@@ -58,8 +60,12 @@ class FlyPongDevice:
         speed = float(self.C["paddleSpeed"])
         ph = float(self.C["paddleH"])
         py = float(state.get("paddle_y", state.get("agent_y")))
+        if not aim_active:
+            self._aim_setpoint = None
+        elif self._aim_setpoint is None:
+            self._aim_setpoint = float(bank.predicted_contact_y_px)
         if aim_active:
-            target_center = bank.predicted_contact_y_px - u_off * (ph / 2.0)
+            target_center = float(self._aim_setpoint) - u_off * (ph / 2.0)
             target_y = target_center - ph / 2.0
             err = target_y - py
             if err > 1.0:
@@ -86,7 +92,10 @@ class FlyPongDevice:
             "u_dy": u_dy,
             "u_offset": u_off,
             "aim_active": aim_active,
-            "target_center_px": float(bank.predicted_contact_y_px - u_off * (ph / 2.0)),
+            "target_center_px": float(
+                (self._aim_setpoint if self._aim_setpoint is not None else bank.predicted_contact_y_px)
+                - u_off * (ph / 2.0)
+            ),
             "paddle_center_px": float(py + ph / 2.0),
             "g_move": self.move_router.gates_np(),
             "g_aim": self.aim_router.gates_np(),

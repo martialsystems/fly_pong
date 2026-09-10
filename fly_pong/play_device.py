@@ -202,5 +202,12 @@ def play_match(
         "signed_open_cmd": float(np.mean([c["signed_open_cmd"] for c in contact_log])) if contact_log else 0.0,
         "mean_opp_landing_dist": float(np.mean([c["opp_landing_dist"] for c in contact_log])) if contact_log else 0.0,
         "contact_n": len(contact_log),
+        "leak_n": sum(1 for c in contact_log if c["signed_open_cmd"] == 1 and c["signed_open_geo"] == 0),
+        "leak_rate": (
+            sum(1 for c in contact_log if c["signed_open_cmd"] == 1 and c["signed_open_geo"] == 0)
+            / float(len(contact_log))
+            if contact_log
+            else 0.0
+        ),
         "contact_log": contact_log,
     }
