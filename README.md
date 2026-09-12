@@ -70,6 +70,36 @@ Hypothesis files written first. Cheap filters on the court state and 1-D strip. 
 
 error_y still owns move. Loom is an abort/commit on reach. Unused fly-named filters are unique labels on court/strip features, not a second retina. Unused parts retargeted; plant unchanged; titles unchanged.
 
+### Valence flip (approach commit)
+
+`logs/approach_commit_hypothesis.json` written first. Result: `logs/approach_commit.json`.
+
+Same 24-frame loom gate as landing/loom. `ESCAPE_SIGN = -1` occupies the predicted crossing Y (approach). `ESCAPE_SIGN = +1` flees. Default is the existing centering reflex. Hand loop is unchanged: photoreceptor strip → L1/L2 → T4/T5 → centering. The new code is a commit/motor remap.
+
+Hypothesis: sign-flipping loom from leave-the-point to occupy-the-crossing-Y yields contact ≥ landing_commit and is just a goalie, not placement. Open-hit is not a success metric.
+
+Bakeoff vs the env lag paddle, n=40, seed 0, same seeds (`play_match` RNG; the fly_gate lock used `eval_fly` / Gym seeding).
+
+| Controller | Matches | Points | Contact | Track err | Commit frac |
+|------------|--------:|-------:|--------:|----------:|------------:|
+| T4/T5 motion only | 0/40 | 11-440 | 0.460 | 0.179 | 0 |
+| T4/T5 + centering | 40/40 | 437-61 | 0.987 | 0.023 | 0 |
+| approach_commit (32-ommatidia Y) | 40/40 | 427-25 | 0.996 | 0.026 | 0.185 |
+| approach_commit oracle Y | 40/40 | 429-31 | 0.995 | 0.025 | 0.189 |
+
+Lag 40/40 on this remap is chase, the same family as centering. This is a valence flip, not a fly result and not a placement result.
+
+Vs frozen Phase A, n=40, seed 0 (landing/loom opponent). Pass key: contact ≥ landing_commit 0.968.
+
+| Run | Matches | Points | Contact | Leak | Open-hit | \|error_y\| at commit | Reach miss |
+|-----|--------:|-------:|--------:|-----:|---------:|----------------------:|-----------:|
+| landing_commit | 17/40 | 211-204 | 0.968 | 0 | 0.520 | | |
+| loom_commit | 17/40 | 261-260 | 0.957 | 0 | 0.511 | | |
+| approach_commit | 24/40 | 229-169 | 0.974 | 0 | 0.532 | 0.062 | 0.089 |
+| approach_commit oracle Y | 26/40 | 230-168 | 0.974 | 0 | 0.536 | 0.062 | 0.090 |
+
+Contact 0.974 ≥ 0.968. Leak 0. Mean |error_y| at commit 0.044 vs lag, 0.062 vs Phase A. Commit fraction 0.185 vs lag, 0.175 vs Phase A. Oracle Y matched the strip estimate at contact. Open-hit stayed ~0.53. Offset off. Window 24. Pass as a goalie valence flip. Matches vs the freeze are reported; they are not a placement bar.
+
 ### Browser PPO
 
 PPO on the 6-number box, 100 games: 99/100 (`public/models/pong.onnx`). That net does not share weights with the fly loop or the device.
@@ -78,7 +108,7 @@ PPO on the 6-number box, 100 games: 99/100 (`public/models/pong.onnx`). That net
 
 Hand loop: photoreceptor strip → L1/L2 half-wave → Reichardt T4c/d and T5c/d → centering.
 
-Device: the same strip plus `error_y`, time-to-paddle, LC-like blob energy, opponent open space, `desired_offset`. Two softmax routers. Commit gate in `fly_pong/commit.py` (reach ≤ tau; intercept Y, not offset).
+Device: the same strip plus `error_y`, time-to-paddle, LC-like blob energy, opponent open space, `desired_offset`. Two softmax routers. Commit gate in `fly_pong/commit.py` (reach ≤ tau; intercept Y, not offset). `approach_commit` is that gate with `ESCAPE_SIGN` flipped to occupy the crossing Y.
 
 Physics lives in `shared/constants.json` plus `fly_pong/physics.py`. The browser clone is `public/js/physics.js`. After changing constants, run `scripts/sync_constants.py`. Python and the page use the same step.
 
@@ -112,6 +142,7 @@ PYTHONPATH=. .venv/bin/python scripts/eval_aim_leak.py
 PYTHONPATH=. .venv/bin/python scripts/eval_aim_setpoint.py
 PYTHONPATH=. .venv/bin/python scripts/eval_landing_commit.py
 PYTHONPATH=. .venv/bin/python scripts/eval_loom_commit.py
+PYTHONPATH=. .venv/bin/python scripts/eval_approach.py --games 40 --seed 0 --out logs/approach_commit.json --oracle_y
 PYTHONPATH=. .venv/bin/python scripts/train_unused_move.py
 PYTHONPATH=. .venv/bin/python scripts/eval_unused_move_gates.py
 .venv/bin/python -m http.server 8000 --directory public
@@ -144,17 +175,20 @@ After changing `public/`, publish with `scripts/publish_pages.sh`. Restamp table
 | `logs/landing_commit.json` | Reachable lunge to intercept Y: leak 0, 17/40, geo 0.465 |
 | `logs/loom_commit_hypothesis.json` | Loom veto pass/fail, written first |
 | `logs/loom_commit.json` | Loom commit vs Phase A: leak 0, 17/40 |
+| `logs/approach_commit_hypothesis.json` | Valence-flip pass/fail, written first |
+| `logs/approach_commit.json` | Approach commit: contact 0.974 vs Phase A; lag chase is not a title |
 | `logs/unused_move_gates_hypothesis.json` | Unused move-gate pass/fail, written first |
 | `logs/unused_move_gates.json` | error_y 0.973; unused vision lost |
 | `fly_pong/features.py` | Named move/aim channels plus unused 1-7 |
 | `fly_pong/routers.py` | Softmax gates |
 | `fly_pong/device.py` | Encode + two heads + commit veto |
-| `fly_pong/commit.py` | Reach ≤ tau; intercept Y, not offset |
+| `fly_pong/commit.py` | Reach ≤ tau; intercept Y, not offset. `ESCAPE_SIGN` approach/flee |
 | `pongforge/` | Phase order and claim bans |
 | `scripts/eval_fly.py` | Hand-loop match rate |
 | `scripts/eval_device.py` | Contact, points, gates |
 | `scripts/eval_landing_commit.py` | Commit veto vs Phase A freeze |
 | `scripts/eval_loom_commit.py` | Loom veto vs Phase A freeze |
+| `scripts/eval_approach.py` | Valence-flip bakeoff; `--oracle_y` reports true Y too |
 | `scripts/train_unused_move.py` | Refit move gates over unused 1-7 |
 | `scripts/eval_unused_move_gates.py` | Unused gates vs lag and Phase A |
 | `public/` | Canvas 6-D PPO opponent (not the fly loop) |

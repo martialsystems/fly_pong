@@ -1,0 +1,61 @@
+{
+  "written_before_run": true,
+  "date": "2026-09-12",
+  "title": "valence-flip-approach-commit",
+  "log_line": "Valence flip: same 24-frame loom gate, ESCAPE_SIGN -1 occupies the crossing Y (approach), +1 flees. Contact, not placement. Open-hit is not a success metric. Not a fly result. Self-play stays locked.",
+  "hypothesis": "Sign-flipping loom from leave-the-point to occupy-the-crossing-Y yields contact ≥ landing_commit and is just a goalie, not placement. Open-hit is not a success metric.",
+  "what": "Motor remap on the existing 24-frame commit gate. Default is hold or the existing centering reflex. Incoming and t_to_line ≤ 24 and reachable: drive toward the predicted crossing Y (reflect if that bounce is inside the window). Escape is the opposite sign. No new retina. No new aim head.",
+  "rule": {
+    "controller": "approach_commit",
+    "tau_window": 24,
+    "commit": "incoming AND t_to_line <= 24 AND reach <= t_to_line",
+    "y_target": "y_ball + v_y * t_to_line; reflect top/bottom if that bounce is in the window",
+    "on_commit": "dy = clip(ESCAPE_SIGN * k * (y_paddle - y_target)). ESCAPE_SIGN -1 approach, +1 flee.",
+    "on_abort": "existing centering (error_y), not escape",
+    "y_paddle": "paddle_y + paddleH/2",
+    "estimate": "32-ommatidia COM for y_ball and COM delta for v_y",
+    "oracle_y": "true ball_y and ball_vy",
+    "t_to_line": "frames_to_agent_paddle (true x, vx)"
+  },
+  "do_not": [
+    "Train T4/T5 as PPO.",
+    "Touch placement or aim titles.",
+    "Change public/ or the browser PPO.",
+    "Widen the 24-frame window.",
+    "Add a new aim head, desired_offset, or self-play.",
+    "Stamp lag 40/40 or PPO 99/100 as a result of this.",
+    "Count open-hit as a success metric.",
+    "Confuse approach_commit with landing_commit.",
+    "Write a C hypothesis from this file."
+  ],
+  "eval": {
+    "n": 40,
+    "seed0": 0,
+    "script": "scripts/eval_approach.py",
+    "out": "logs/approach_commit.json",
+    "bakeoff": ["motion_only", "centering", "approach_commit"],
+    "oracle_y": "report both",
+    "opponent_bakeoff": "lag_chase",
+    "opponent_contact_bar": "frozen_phase_a"
+  },
+  "pass": {
+    "contact_vs": "landing_commit",
+    "contact_min_source": "logs/landing_commit.json games_commit mean contact_rate",
+    "open_hit_is_success_metric": false,
+    "scoring_key": "contact_rate vs frozen Phase A",
+    "matches_vs_lag_are_title": false,
+    "rule": "Vs frozen Phase A, approach_commit contact_rate >= landing_commit mean contact_rate. Open-hit is logged and is not a pass key. Lag matches are reported and are not a title."
+  },
+  "compare": [
+    "logs/fly_gate_motion_only.json",
+    "logs/fly_gate.json",
+    "logs/landing_commit.json",
+    "logs/loom_commit.json"
+  ],
+  "selfplay": "locked",
+  "write_c_hypothesis": false,
+  "widen_window": false,
+  "public": "unchanged",
+  "lag_40_40_is_title": false,
+  "ppo_99_100_is_title": false
+}
