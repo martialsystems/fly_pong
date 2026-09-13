@@ -19,8 +19,6 @@ This project isn’t a full fruit-fly brain playing video games. Think of it as 
 
 **The short answer:** Motion detection alone cannot hit the ball. What actually works is a simple visual reflex. The fly tracks the bright spot representing the ball and centers its paddle over it. That’s enough to beat a slow computer opponent, but it’s just basic tracking, not strategic play.
 
-*(Note: The live web demo uses a frozen AI model for the right paddle. The actual "fly" logic runs in the Python scripts).*
-
 **How the Fly "Sees":**
 
 The fly does not see a full Pong court with paddles and walls.
