@@ -221,7 +221,7 @@ def draw_title(surf, C: dict[str, Any], *, mouse: tuple[int, int] = (-1, -1)) ->
     for key, label in (("start", "START GAME"), ("scores", "HIGH SCORES"), ("quit", "QUIT")):
         rect = button_rects(fw, fh)[key]
         _button(pygame, surf, rect, label, hover=hit(rect, mouse))
-    hint = small.render("W/S or mouse  ·  R reset  ·  Esc menu", True, GOLD_DK)
+    hint = small.render("W/S or mouse  ·  R reset  ·  Esc menu  ·  M mute", True, GOLD_DK)
     surf.blit(hint, (fw // 2 - hint.get_width() // 2, fh - 48))
 
 

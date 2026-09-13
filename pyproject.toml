@@ -31,7 +31,7 @@ dev = [
 include = ["fly_pong"]
 
 [tool.setuptools.package-data]
-fly_pong = ["assets/*.png", "assets/src/*"]
+fly_pong = ["assets/*.png", "assets/*.wav", "assets/src/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

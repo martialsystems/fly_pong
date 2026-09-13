@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import argparse
-import os
 from typing import Any
 
 from fly_pong.commit import ApproachCommitController
@@ -13,8 +12,9 @@ from fly_pong.court import draw as draw_court
 from fly_pong.court import draw_scores, draw_title, frame_size, hit, play_button_rects
 from fly_pong.env import FlyPongEnv
 from fly_pong.physics import clip, lag_opponent_dy, mirror_right_state
-from fly_pong.scores import record as record_score
+from fly_pong.music import start_music, stop_music
 from fly_pong.scores import load as load_scores
+from fly_pong.scores import record as record_score
 
 
 def human_dy(keys, mouse_y: float, agent_y: float, C: dict[str, Any], pygame) -> float:
@@ -125,15 +125,19 @@ def main() -> None:
     args = parser.parse_args()
     names = live_label(args.opponent)
     print(names["print"], flush=True)
-    print("menu: Start Game, High Scores, Reset (R)", flush=True)
+    print("menu: Start Game, High Scores, Reset (R). M mutes the bed.", flush=True)
 
-    os.environ.setdefault("SDL_AUDIODRIVER", "dummy")
     pygame = __import__("pygame")
     C = load_constants()
     env = FlyPongEnv(render_mode=None)
     fly = ApproachCommitController(oracle_y=bool(args.oracle_y)) if args.opponent == "approach" else None
+    try:
+        pygame.mixer.pre_init(22050, size=-16, channels=1, buffer=512)
+    except Exception:
+        pass
     pygame.init()
     pygame.display.init()
+    start_music(pygame)
     fw, fh = frame_size(C)
     screen = pygame.display.set_mode((fw, fh))
     pygame.display.set_caption(names["caption"])
@@ -166,6 +170,12 @@ def main() -> None:
                     elif event.key in (pygame.K_r,) and mode == "play":
                         _boot_match(env, fly)
                         recorded = False
+                    elif event.key == pygame.K_m:
+                        try:
+                            vol = pygame.mixer.music.get_volume()
+                            pygame.mixer.music.set_volume(0.0 if vol > 0.05 else 0.38)
+                        except Exception:
+                            pass
             keys = pygame.key.get_pressed()
             menus = button_rects(fw, fh)
             plays = play_button_rects(fw, fh)
@@ -214,6 +224,7 @@ def main() -> None:
             pygame.display.flip()
             clock.tick(60)
     finally:
+        stop_music(pygame)
         env.close()
         pygame.display.quit()
         pygame.quit()
