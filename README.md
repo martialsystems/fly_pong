@@ -1,6 +1,6 @@
 # fly_pong
 
-[Play human vs fly](martialsystems.github.io/fly_pong/)
+[PLAY HUMAN VS FLY](martialsystems.github.io/fly_pong/)
 
 **Left paddle:** W/S, arrows, or mouse. Right paddle: the 24-frame intercept goalie (fly). Press 'M' to mute. 
 
