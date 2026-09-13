@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from fly_pong.commit import ApproachCommitController
 from fly_pong.constants import load_constants
-from fly_pong.court import frame_size
+from fly_pong.court import ASSETS, frame_size
 from fly_pong.env import FlyPongEnv
 from fly_pong.physics import lag_opponent_dy, mirror_right_state
 from fly_pong.run_human import live_label, play_headless, right_dy
@@ -105,5 +105,10 @@ def test_medieval_rgb_is_not_the_old_void():
                     return True
         return False
 
-    assert _any(16, 40, 110, 160, lambda p: p[0] > 160 and 100 < p[1] < 180 and p[2] < 140)
-    assert _any(fw - 120, 40, fw - 16, 160, lambda p: p[0] > 140 and p[1] < 90)
+    assert (ASSETS / "knight.png").is_file()
+    assert (ASSETS / "fly.png").is_file()
+    assert _any(16, 40, 120, 180, lambda p: p[0] > 140 and 90 < p[1] < 190 and p[2] < 160)
+    assert _any(fw - 130, 40, fw - 16, 160, lambda p: p[0] > 150 and p[1] < 90)
+    # Fly hangs on parchment, not a black field.
+    parchment = tuple(int(v) for v in frame[200, fw - 60])
+    assert parchment[0] > 180 and parchment[1] > 160

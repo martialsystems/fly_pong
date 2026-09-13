@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 
 import numpy as np
 
 SCALE = 2
-SIDE = 112
+SIDE = 120
+ASSETS = Path(__file__).resolve().parent / "assets"
 
 OAK = (16, 10, 7)
 STONE = (58, 45, 34)
@@ -22,71 +24,8 @@ IRON = (36, 34, 32)
 IRON_LT = (96, 90, 82)
 WOOD = (118, 72, 34)
 WOOD_DK = (68, 42, 18)
-SABLE = (14, 12, 10)
+PARCHMENT = (228, 208, 158)
 HIGHLIGHT = (240, 228, 196)
-
-# Pixel-art palettes. "." is skip.
-GUY_PAL = {
-    "K": (22, 16, 12),
-    "H": (52, 34, 22),
-    "F": (198, 152, 112),
-    "W": (236, 220, 190),
-    "E": (18, 14, 12),
-    "N": (168, 128, 92),
-    "T": (148, 30, 30),
-    "B": (92, 20, 20),
-    "G": (198, 156, 56),
-    "L": (56, 42, 32),
-    "O": (28, 22, 16),
-}
-FLY_PAL = {
-    "K": (18, 14, 10),
-    "Y": (186, 150, 48),
-    "D": (92, 70, 22),
-    "R": (176, 36, 28),
-    "W": (210, 200, 178),
-    "A": (168, 160, 148),
-}
-
-# 16 x 20. Human, tunic, hose.
-GUY = (
-    "......KKKK......",
-    ".....KHHHHK.....",
-    "....KHHHHHHK....",
-    "....KHFFFFHK....",
-    "...KKFFFFFFKK...",
-    "...KFWEFFWEFK...",
-    "...KFFFFFFFFK...",
-    "....KFFFFFFK....",
-    ".....KNNNNK.....",
-    "....KBTTTTBK....",
-    "...KBTTTTTTBK...",
-    "...KTTTGGTTTK...",
-    "...KBTTTTTTBK...",
-    "....KTTKKTTK....",
-    "....KLK..KLK....",
-    "....KLK..KLK....",
-    "....KLK..KLK....",
-    "....KOK..KOK....",
-    "....KKK..KKK....",
-    "................",
-)
-
-# Top-down housefly: wings, red eyes, dark abdomen, legs.
-FLY = (
-    "..WWWWWWWW..",
-    ".W........W.",
-    ".W.KKKKKK.W.",
-    "..KRRRRRRK..",
-    "..KDDDDDDK..",
-    "...KDDDDK...",
-    "..K.KDDK.K..",
-    ".K...KK...K.",
-    "............",
-    "............",
-    "............",
-    "............",
-)
 
 
 def frame_size(C: dict[str, Any]) -> tuple[int, int]:
@@ -116,14 +55,9 @@ def _bricks(pygame, surf, w: int, h: int) -> None:
             x += bw
 
 
-def _blit_pixels(pygame, surf, grid: tuple[str, ...], origin: tuple[int, int], px: int, pal: dict) -> None:
-    x0, y0 = origin
-    for j, row in enumerate(grid):
-        for i, ch in enumerate(row):
-            color = pal.get(ch)
-            if color is None:
-                continue
-            pygame.draw.rect(surf, color, (x0 + i * px, y0 + j * px, px, px))
+def _sprite(pygame, name: str):
+    path = ASSETS / name
+    return pygame.image.load(str(path))
 
 
 def _banner(pygame, surf, x: int, y: int, w: int, h: int, field) -> None:
@@ -180,16 +114,17 @@ def draw(
     pygame.draw.rect(surf, GOLD_DK, (0, beam - 3, fw, 3))
     pygame.draw.rect(surf, GOLD_DK, (0, fh - beam, fw, 3))
 
-    bw, bh = 96, 240
+    bw, bh = 104, 250
     left_b = 8
     right_b = fw - 8 - bw
     _banner(pygame, surf, left_b, beam + 8, bw, bh, CRIMSON)
-    _banner(pygame, surf, right_b, beam + 8, bw, bh, SABLE)
-    guy_px, fly_px = 4, 5
-    guy_w = len(GUY[0]) * guy_px
-    fly_w = len(FLY[0]) * fly_px
-    _blit_pixels(pygame, surf, GUY, (left_b + (bw - guy_w) // 2, beam + 28), guy_px, GUY_PAL)
-    _blit_pixels(pygame, surf, FLY, (right_b + (bw - fly_w) // 2, beam + 36), fly_px, FLY_PAL)
+    _banner(pygame, surf, right_b, beam + 8, bw, bh, PARCHMENT)
+    knight = _sprite(pygame, "knight.png")
+    fly = _sprite(pygame, "fly.png")
+    kw, _kh = knight.get_size()
+    flw, _flh = fly.get_size()
+    surf.blit(knight, (left_b + (bw - kw) // 2, beam + 22))
+    surf.blit(fly, (right_b + (bw - flw) // 2, beam + 36))
 
     mid = ox + int(C["width"]) * s // 2
     for y in range(beam + 8, fh - beam - 8, 16):
