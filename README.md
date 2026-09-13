@@ -52,11 +52,11 @@ To fix this, the authors added a second, position-based control loop:
 
 4. **Boost on Approach:** When the ball flies toward the fly, it boosts movement sensitivity (a "looming" reaction). Motion data is added only as a minor predictive nudge.
 
-**The Result:** By constantly trying to align its center with the ball's center, the fly won 40 out of 40 matches against a slowed-down baseline opponent. It isn't playing strategy—it’s just acting like a automated target-tracker.
+**The Result:** By constantly trying to align its center with the ball's center, the fly won 40 out of 40 matches against a slowed-down baseline opponent. Rather than playing strategy, it acts as an  automated target-tracker.
 
 **Advanced Layers (And the Limits of "Aiming")**
 
-The authors also tested extra control layers:
+I also tested extra control layers:
 
 - **Interception Windows:** If a ball is incoming and reachable, the paddle snaps directly to the predicted impact point instead of drifting toward it.
 
