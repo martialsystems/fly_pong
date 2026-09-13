@@ -13,7 +13,7 @@ Add a retinotopic centering reflex (luminance center of mass vs paddle height) a
 
 That is tracking, not placement. Phase B vs lag is a null (open-hit ~0.5). Later aim heads moved points, geo, or contact against a frozen Phase A returner; none cleared geo, leak, and match bar together. Self-play is not part of this title.
 
-Play vs the goalie in Python (medieval hall, same physics):
+Play vs the goalie in Python (medieval hall). The locked evals keep bounceGain 1.02. The window uses 1.008 and a speed cap so rallies do not jump to laser in twenty hits.
 
 ```bash
 .venv/bin/python -m fly_pong.run_human --opponent approach

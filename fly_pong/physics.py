@@ -28,6 +28,20 @@ def clip_paddle(y: float, C: dict[str, Any] | None = None) -> float:
     return clip(y, 0.0, paddle_span(C))
 
 
+def cap_ball_speed(vx: float, vy: float, C: dict[str, Any] | None = None) -> tuple[float, float]:
+    """Optional play-court cap. Locked evals omit ballSpeedMax and are unchanged."""
+    C = C or load_constants()
+    cap = C.get("ballSpeedMax")
+    if cap is None:
+        return float(vx), float(vy)
+    cap = float(cap)
+    spd = math.hypot(float(vx), float(vy))
+    if spd <= cap or spd < 1e-9:
+        return float(vx), float(vy)
+    s = cap / spd
+    return float(vx) * s, float(vy) * s
+
+
 def dy_from_action(action: int, speed: float | None = None, C: dict[str, Any] | None = None) -> float:
     C = C or load_constants()
     if speed is None:
@@ -159,6 +173,8 @@ def step(
         offset = (ball_y - (out["opp_y"] + ph / 2.0)) / (ph / 2.0)
         ball_vy = ball_vy + offset * spin
         ball_x = float(C["oppX"]) - r
+
+    ball_vx, ball_vy = cap_ball_speed(ball_vx, ball_vy, C)
 
     reward = 0.0
     if ball_x < -r:

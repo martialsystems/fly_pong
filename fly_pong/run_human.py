@@ -11,10 +11,14 @@ from fly_pong.court import button_rects, court_from_window_y
 from fly_pong.court import draw as draw_court
 from fly_pong.court import draw_scores, draw_title, frame_size, hit, play_button_rects
 from fly_pong.env import FlyPongEnv
-from fly_pong.physics import clip, lag_opponent_dy, mirror_right_state, paddle_contact
 from fly_pong.music import play_hit, start_music, stop_music
+from fly_pong.physics import clip, lag_opponent_dy, mirror_right_state, paddle_contact
 from fly_pong.scores import load as load_scores
 from fly_pong.scores import record as record_score
+
+# Playable court only. Locked evals keep bounceGain 1.02 and no cap.
+PLAY_BOUNCE_GAIN = 1.008
+PLAY_BALL_SPEED_MAX = 8.5
 
 
 def human_dy(keys, mouse_y: float, agent_y: float, C: dict[str, Any], pygame) -> float:
@@ -128,6 +132,8 @@ def main() -> None:
     pygame = __import__("pygame")
     C = load_constants()
     env = FlyPongEnv(render_mode=None)
+    env.C["bounceGain"] = PLAY_BOUNCE_GAIN
+    env.C["ballSpeedMax"] = PLAY_BALL_SPEED_MAX
     fly = ApproachCommitController(oracle_y=bool(args.oracle_y)) if args.opponent == "approach" else None
     try:
         pygame.mixer.pre_init(22050, size=-16, channels=1, buffer=512)

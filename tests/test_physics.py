@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from fly_pong.constants import load_constants
-from fly_pong.physics import clip_paddle, dy_from_action, initial_state, paddle_contact, step
+from fly_pong.physics import cap_ball_speed, clip_paddle, dy_from_action, initial_state, paddle_contact, step
 
 
 def test_paddle_clip():
@@ -42,6 +42,22 @@ def test_score_is_not_a_paddle_contact():
         "ball_vx": 5.0,
     }
     assert paddle_contact(prev, now) is False
+
+
+def test_default_constants_do_not_cap_speed():
+    C = load_constants()
+    assert C["bounceGain"] == 1.02
+    assert "ballSpeedMax" not in C
+    vx, vy = cap_ball_speed(20.0, 15.0, C)
+    assert vx == 20.0 and vy == 15.0
+
+
+def test_play_cap_scales_vector():
+    C = dict(load_constants())
+    C["ballSpeedMax"] = 10.0
+    vx, vy = cap_ball_speed(6.0, 8.0, C)
+    assert abs((vx * vx + vy * vy) ** 0.5 - 10.0) < 1e-6
+    assert abs(vx / vy - 6.0 / 8.0) < 1e-6
 
 
 def test_wall_bounce_flips_vy():
