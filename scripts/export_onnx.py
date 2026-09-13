@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Export PPO policy + VecNormalize stats for onnxruntime-web."""
+"""Export PPO policy + VecNormalize stats to artifacts/. Offline only."""
 
 from __future__ import annotations
 
@@ -18,7 +18,6 @@ from fly_pong.obs import apply_vecnorm
 
 ROOT = Path(__file__).resolve().parents[1]
 ARTIFACTS = ROOT / "artifacts"
-PUBLIC_MODELS = ROOT / "public" / "models"
 
 
 class OnnxableSB3Policy(th.nn.Module):
@@ -35,7 +34,7 @@ def make_env():
 
 
 def main() -> None:
-    PUBLIC_MODELS.mkdir(parents=True, exist_ok=True)
+    ARTIFACTS.mkdir(parents=True, exist_ok=True)
     env = DummyVecEnv([make_env])
     env = VecNormalize.load(str(ARTIFACTS / "pong_vecnormalize.pkl"), env)
     env.training = False
@@ -49,9 +48,9 @@ def main() -> None:
         "epsilon": float(env.epsilon),
         "clip_obs": float(env.clip_obs),
     }
-    (PUBLIC_MODELS / "norm.json").write_text(json.dumps(norm, indent=2) + "\n", encoding="utf-8")
+    (ARTIFACTS / "norm.json").write_text(json.dumps(norm, indent=2) + "\n", encoding="utf-8")
 
-    onnx_path = PUBLIC_MODELS / "pong.onnx"
+    onnx_path = ARTIFACTS / "pong.onnx"
     dummy = th.randn(1, 6)
     th.onnx.export(
         OnnxableSB3Policy(model.policy),
@@ -77,7 +76,7 @@ def main() -> None:
     sb3_int = int(np.asarray(sb3_action).reshape(-1)[0])
     if onnx_action != sb3_int:
         raise SystemExit(f"ONNX action {onnx_action} != SB3 {sb3_int}")
-    print(f"exported {onnx_path} and {PUBLIC_MODELS / 'norm.json'}; sample action={onnx_action}")
+    print(f"exported {onnx_path} and {ARTIFACTS / 'norm.json'}; sample action={onnx_action}")
 
 
 if __name__ == "__main__":

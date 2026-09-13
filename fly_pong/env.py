@@ -10,6 +10,7 @@ from gymnasium import spaces
 
 from fly_pong.constants import load_constants
 from fly_pong.obs import OBS_HIGH, OBS_LOW, encode
+from fly_pong.court import draw as draw_court
 from fly_pong.physics import (
     dy_from_action,
     initial_state,
@@ -44,6 +45,12 @@ class FlyPongEnv(gym.Env):
         self._screen = None
         self._clock = None
         self._pygame = None
+        self.hud: dict[str, Any] = {
+            "caption": "human vs lag_chase",
+            "left_name": "YOU",
+            "right_name": "LAG",
+            "commit": False,
+        }
 
         if render_mode is not None and render_mode not in self.metadata["render_modes"]:
             raise ValueError(f"Unsupported render_mode: {render_mode}")
@@ -87,9 +94,11 @@ class FlyPongEnv(gym.Env):
             self._render_frame()
         return self._obs(), self._info()
 
-    def step(self, action):
-        agent_dy = dy_from_action(int(action), C=self.C)
-        opp_dy = lag_opponent_dy(self._state, self.C)
+    def step(self, action, opp_dy=None, agent_dy=None):
+        if agent_dy is None:
+            agent_dy = dy_from_action(int(action), C=self.C)
+        if opp_dy is None:
+            opp_dy = lag_opponent_dy(self._state, self.C)
         angle = float(
             self.np_random.uniform(-float(self.C["serveAngleMax"]), float(self.C["serveAngleMax"]))
         )
@@ -132,29 +141,12 @@ class FlyPongEnv(gym.Env):
             pygame.display.init()
             if self.render_mode == "human":
                 self._screen = pygame.display.set_mode((self.width, self.height))
-                pygame.display.set_caption("Fly Pong")
+                pygame.display.set_caption(str(self.hud.get("caption") or "human vs lag_chase"))
             else:
                 self._screen = pygame.Surface((self.width, self.height))
             self._clock = pygame.time.Clock()
 
-        self._screen.fill((12, 12, 18))
-        s = self._state
-        pygame.draw.rect(
-            self._screen,
-            (230, 230, 230),
-            (int(C["agentX"]), int(s["agent_y"]), int(C["paddleW"]), int(C["paddleH"])),
-        )
-        pygame.draw.rect(
-            self._screen,
-            (180, 180, 200),
-            (int(C["oppX"]), int(s["opp_y"]), int(C["paddleW"]), int(C["paddleH"])),
-        )
-        pygame.draw.circle(
-            self._screen,
-            (255, 210, 80),
-            (int(s["ball_x"]), int(s["ball_y"])),
-            int(C["ballR"]),
-        )
+        draw_court(self._screen, self._state, C, self.hud)
         if self.render_mode == "human":
             pygame.event.pump()
             pygame.display.flip()
@@ -164,8 +156,9 @@ class FlyPongEnv(gym.Env):
 
     def close(self):
         if self._screen is not None and self._pygame is not None:
-            self._pygame.display.quit()
-            self._pygame.quit()
+            if self.render_mode == "human":
+                self._pygame.display.quit()
             self._screen = None
             self._clock = None
-            self._pygame = None
+            # Do not pygame.quit(): it unloads the font module and the next
+            # rgb_array render in this process can SIGSEGV.

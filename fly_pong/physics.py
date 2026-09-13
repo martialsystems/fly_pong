@@ -1,4 +1,4 @@
-"""Pure Pong step. No pygame, no Gym. JS clones this file's formulas."""
+"""Pure Pong step. No pygame, no Gym."""
 
 from __future__ import annotations
 
@@ -38,6 +38,25 @@ def dy_from_action(action: int, speed: float | None = None, C: dict[str, Any] | 
     if action == 2:
         return speed
     return 0.0
+
+
+def mirror_right_state(raw: State, C: dict[str, Any] | None = None) -> State:
+    """View the court from the right paddle, so approach_commit can drive it."""
+    C = C or load_constants()
+    w = float(C["width"])
+    return {
+        "ball_x": w - float(raw["ball_x"]),
+        "ball_y": raw["ball_y"],
+        "ball_vx": -float(raw["ball_vx"]),
+        "ball_vy": raw["ball_vy"],
+        "paddle_y": raw["opp_y"],
+        "opp_y": raw["agent_y"],
+        "width": C["width"],
+        "height": C["height"],
+        "paddle_h": C["paddleH"],
+        "agent_score": raw.get("opp_score", 0),
+        "opp_score": raw.get("agent_score", 0),
+    }
 
 
 def lag_opponent_dy(state: State, C: dict[str, Any] | None = None) -> float:

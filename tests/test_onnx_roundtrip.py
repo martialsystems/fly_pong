@@ -7,8 +7,8 @@ import numpy as np
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-ONNX = ROOT / "public" / "models" / "pong.onnx"
-NORM = ROOT / "public" / "models" / "norm.json"
+ONNX = ROOT / "artifacts" / "pong.onnx"
+NORM = ROOT / "artifacts" / "norm.json"
 MODEL = ROOT / "artifacts" / "pong_ppo.zip"
 
 

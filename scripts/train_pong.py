@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Train PPO on FlyPongEnv. Offline only; the site loads the exported ONNX."""
+"""Train PPO on FlyPongEnv. Offline vs the lag paddle. Not a fly title."""
 
 from __future__ import annotations
 

@@ -3,7 +3,7 @@
 A 32-ommatidia T4/T5 strip pointed at Pong, plus a retinotopic centering reflex.
 
 Motion alone cannot play. Centering can track and win against the env lag paddle.
-Placement is closed. The browser court is a separate 6-input PPO, not the fly.
+Placement is closed. A 1-D motion strip can return a Pong ball. It does not place one.
 
 **Question.** Can a fly-style vertical motion detector play Pong?
 
@@ -13,11 +13,17 @@ Add a retinotopic centering reflex (luminance center of mass vs paddle height) a
 
 That is tracking, not placement. Phase B vs lag is a null (open-hit ~0.5). Later aim heads moved points, geo, or contact against a frozen Phase A returner; none cleared geo, leak, and match bar together. Self-play is not part of this title.
 
-Playable court: [martialsystems.github.io/fly_pong](https://martialsystems.github.io/fly_pong/). You are the left paddle. The right paddle is a 6-input PPO exported to ONNX. Same physics as the lab env, different controller. 99/100 on that net is not a fly result and not a placement result.
+Play vs the goalie in Python (medieval hall, same physics):
+
+```bash
+.venv/bin/python -m fly_pong.run_human --opponent approach
+```
+
+Left paddle is you (W/S, arrows, or mouse). Right paddle is `approach_commit`: centering plus a 24-frame occupy-the-Y lunge. This court is a toy, not a fly result and not a placement result.
 
 ## Locked numbers
 
-Copied from `logs/`. Lag 40/40 and PPO 99/100 are those evals only.
+Copied from `logs/`. Lag 40/40 is chase.
 
 ### Hand loop
 
@@ -100,17 +106,13 @@ Vs frozen Phase A, n=40, seed 0 (landing/loom opponent). Pass key: contact ≥ l
 
 Contact 0.974 ≥ 0.968. Leak 0. Mean |error_y| at commit 0.044 vs lag, 0.062 vs Phase A. Commit fraction 0.185 vs lag, 0.175 vs Phase A. Oracle Y matched the strip estimate at contact. Open-hit stayed ~0.53. Offset off. Window 24. Pass as a goalie valence flip. Matches vs the freeze are reported; they are not a placement bar.
 
-### Browser PPO
-
-PPO on the 6-number box, 100 games: 99/100 (`public/models/pong.onnx`). That net does not share weights with the fly loop or the device.
-
 ## What the controllers are
 
 Hand loop: photoreceptor strip → L1/L2 half-wave → Reichardt T4c/d and T5c/d → centering.
 
 Device: the same strip plus `error_y`, time-to-paddle, LC-like blob energy, opponent open space, `desired_offset`. Two softmax routers. Commit gate in `fly_pong/commit.py` (reach ≤ tau; intercept Y, not offset). `approach_commit` is that gate with `ESCAPE_SIGN` flipped to occupy the crossing Y.
 
-Physics lives in `shared/constants.json` plus `fly_pong/physics.py`. The browser clone is `public/js/physics.js`. After changing constants, run `scripts/sync_constants.py`. Python and the page use the same step.
+Physics lives in `shared/constants.json` plus `fly_pong/physics.py`. The playable court is `fly_pong/court.py` plus `run_human`.
 
 `pongforge/` encodes phase order and claim bans (no aim-before-move; lag 40/40 is not a finished title).
 
@@ -121,14 +123,14 @@ Physics lives in `shared/constants.json` plus `fly_pong/physics.py`. The browser
 ```bash
 /opt/homebrew/bin/python3.12 -m venv .venv
 .venv/bin/python -m pip install -e ".[dev,train]"
-.venv/bin/python scripts/sync_constants.py
 .venv/bin/python -m pytest
 ```
 
 Do not use stock `/usr/bin/python3 -m pytest`.
 
 ```bash
-.venv/bin/python -m fly_pong.run_human
+.venv/bin/python -m fly_pong.run_human --opponent approach
+.venv/bin/python -m fly_pong.run_human --opponent lag
 .venv/bin/python -m fly_pong.run_fly
 .venv/bin/python scripts/eval_fly.py --games 40 --out logs/fly_gate.json
 PYTHONPATH=. .venv/bin/python scripts/train_move.py
@@ -145,13 +147,9 @@ PYTHONPATH=. .venv/bin/python scripts/eval_loom_commit.py
 PYTHONPATH=. .venv/bin/python scripts/eval_approach.py --games 40 --seed 0 --out logs/approach_commit.json --oracle_y
 PYTHONPATH=. .venv/bin/python scripts/train_unused_move.py
 PYTHONPATH=. .venv/bin/python scripts/eval_unused_move_gates.py
-.venv/bin/python -m http.server 8000 --directory public
 ```
 
-Local court: http://127.0.0.1:8000
-Published court: https://martialsystems.github.io/fly_pong/
-
-After changing `public/`, publish with `scripts/publish_pages.sh`. Restamp tables from the JSON if the numbers move.
+Restamp tables from the JSON if the numbers move.
 
 ## Layout
 
@@ -191,8 +189,8 @@ After changing `public/`, publish with `scripts/publish_pages.sh`. Restamp table
 | `scripts/eval_approach.py` | Valence-flip bakeoff; `--oracle_y` reports true Y too |
 | `scripts/train_unused_move.py` | Refit move gates over unused 1-7 |
 | `scripts/eval_unused_move_gates.py` | Unused gates vs lag and Phase A |
-| `public/` | Canvas 6-D PPO opponent (not the fly loop) |
-| `scripts/publish_pages.sh` | Copy `public/` onto `gh-pages` |
+| `fly_pong/court.py` | Medieval hall renderer |
+| `fly_pong/run_human.py` | You vs approach_commit or lag |
 
 Sequel work needs a new question. MIT license.
 

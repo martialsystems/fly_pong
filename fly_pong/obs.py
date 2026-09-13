@@ -1,4 +1,4 @@
-"""6-D observation used by PPO training and the browser opponent."""
+"""6-D observation for the Gym body."""
 
 from __future__ import annotations
 

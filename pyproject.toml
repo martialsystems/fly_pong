@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "fly-pong"
 version = "0.1.0"
-description = "T4/T5 + centering won 40/40 vs lag. Placement is closed. The court page is a separate PPO."
+description = "T4/T5 + centering returns vs lag. Placement is closed. Play vs approach_commit in Python."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
