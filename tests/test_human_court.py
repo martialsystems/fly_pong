@@ -5,7 +5,7 @@ from fly_pong.constants import load_constants
 from fly_pong.court import ASSETS, frame_size
 from fly_pong.env import FlyPongEnv
 from fly_pong.physics import lag_opponent_dy, mirror_right_state
-from fly_pong.run_human import PLAY_BALL_SPEED_MAX, PLAY_BOUNCE_GAIN, live_label, play_headless, right_dy
+from fly_pong.run_human import PLAY_BOUNCE_GAIN, live_label, play_headless, right_dy
 
 
 def test_opp_dy_moves_right_paddle():
@@ -81,7 +81,10 @@ def test_play_ramp_is_slower_than_locked_evals():
     C = load_constants()
     assert PLAY_BOUNCE_GAIN < float(C["bounceGain"])
     assert PLAY_BOUNCE_GAIN > 1.0
-    assert PLAY_BALL_SPEED_MAX > float(C["ballSpeed"])
+    env = FlyPongEnv(render_mode=None)
+    env.C["bounceGain"] = PLAY_BOUNCE_GAIN
+    assert "ballSpeedMax" not in env.C
+    env.close()
 
 
 def test_live_label_is_not_a_title():
