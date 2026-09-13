@@ -2,7 +2,7 @@
 
 [PLAY HUMAN VS FLY](https://martialgames.net/fly-pong/) online now!
 
-**Left paddle:** W/S, arrows, or mouse. Right paddle: the 24-frame intercept goalie (fly). Press 'M' to mute. 
+- **Left paddle:** W/S, arrows, or mouse. Right paddle: the 24-frame intercept goalie (fly). Press 'M' to mute, 'R' to reset.
 
 **Or if you wish to download and test yourself:**
 
