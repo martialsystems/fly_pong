@@ -11,8 +11,8 @@ from fly_pong.court import button_rects, court_from_window_y
 from fly_pong.court import draw as draw_court
 from fly_pong.court import draw_scores, draw_title, frame_size, hit, play_button_rects
 from fly_pong.env import FlyPongEnv
-from fly_pong.physics import clip, lag_opponent_dy, mirror_right_state
-from fly_pong.music import start_music, stop_music
+from fly_pong.physics import clip, lag_opponent_dy, mirror_right_state, paddle_contact
+from fly_pong.music import play_hit, start_music, stop_music
 from fly_pong.scores import load as load_scores
 from fly_pong.scores import record as record_score
 
@@ -50,8 +50,7 @@ def live_label(opponent: str) -> dict[str, str]:
             "print": (
                 "live controller: human vs fly\n"
                 "left: W/S or arrows or mouse\n"
-                "right: approach_commit (centering + 24-frame occupy-the-Y)\n"
-                "this court is a toy, not a fly title"
+                "right: approach_commit (centering + 24-frame occupy-the-Y)"
             ),
         }
     return {
@@ -61,8 +60,7 @@ def live_label(opponent: str) -> dict[str, str]:
         "print": (
             "live controller: human vs lag\n"
             "left: W/S or arrows or mouse\n"
-            "right: env lag paddle (0.75x speed)\n"
-            "this court is a toy, not a fly title"
+            "right: env lag paddle (0.75x speed)"
         ),
     }
 
@@ -204,9 +202,12 @@ def main() -> None:
                 else:
                     raw = env.unwrapped._state
                     if not raw["terminated"]:
+                        prev = dict(raw)
                         agent_dy = human_dy(keys, mouse[1], float(raw["agent_y"]), C, pygame)
                         opp, commit = right_dy(args.opponent, raw, C, fly)
                         env.step(0, opp_dy=opp, agent_dy=agent_dy)
+                        if paddle_contact(prev, env.unwrapped._state):
+                            play_hit(pygame)
                     elif not recorded:
                         record_score(int(raw["agent_score"]), int(raw["opp_score"]))
                         recorded = True

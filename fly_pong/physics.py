@@ -192,3 +192,14 @@ def step(
     out["ball_vx"] = ball_vx
     out["ball_vy"] = ball_vy
     return out, reward
+
+
+def paddle_contact(prev: State, now: State) -> bool:
+    """True when vx flipped and no point was scored (paddle, not serve)."""
+    if int(now["agent_score"]) != int(prev["agent_score"]):
+        return False
+    if int(now["opp_score"]) != int(prev["opp_score"]):
+        return False
+    pv = float(prev["ball_vx"])
+    nv = float(now["ball_vx"])
+    return pv * nv < 0.0 and abs(pv) > 1e-9

@@ -215,9 +215,7 @@ def draw_title(surf, C: dict[str, Any], *, mouse: tuple[int, int] = (-1, -1)) ->
     _bricks(pygame, surf, fw, fh)
     title, mid, small = _fonts(pygame)
     head = title.render("HUMAN VS FLY", True, GOLD)
-    sub = small.render("a toy court. not a fly title.", True, CREAM)
-    surf.blit(head, (fw // 2 - head.get_width() // 2, fh // 2 - 140))
-    surf.blit(sub, (fw // 2 - sub.get_width() // 2, fh // 2 - 96))
+    surf.blit(head, (fw // 2 - head.get_width() // 2, fh // 2 - 120))
     for key, label in (("start", "START GAME"), ("scores", "HIGH SCORES"), ("quit", "QUIT")):
         rect = button_rects(fw, fh)[key]
         _button(pygame, surf, rect, label, hover=hit(rect, mouse))

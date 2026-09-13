@@ -10,6 +10,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "fly_pong" / "assets" / "bgm.wav"
+HIT = ROOT / "fly_pong" / "assets" / "hit.wav"
 SR = 22050
 BPM = 96
 BARS = 4
@@ -109,6 +110,26 @@ def main() -> None:
         w.setframerate(SR)
         w.writeframes(pcm.tobytes())
     print(f"wrote {OUT.relative_to(ROOT)}  {n / SR:.2f}s  peak={peak:.3f}")
+    _write_hit()
+
+
+def _write_hit() -> None:
+    n = int(0.09 * SR)
+    t = np.arange(n, dtype=np.float64) / SR
+    rng = np.random.default_rng(3)
+    env = np.exp(-t * 58.0)
+    thump = np.sin(2.0 * np.pi * 148.0 * t) * 0.65
+    thump += np.sin(2.0 * np.pi * 296.0 * t) * 0.22
+    click = rng.normal(0.0, 1.0, n) * 0.28
+    mix = (thump + click) * env
+    peak = float(np.max(np.abs(mix))) or 1.0
+    pcm = np.int16(np.clip(mix / peak * 0.85, -1.0, 1.0) * 32767)
+    with wave.open(str(HIT), "wb") as w:
+        w.setnchannels(1)
+        w.setsampwidth(2)
+        w.setframerate(SR)
+        w.writeframes(pcm.tobytes())
+    print(f"wrote {HIT.relative_to(ROOT)}  {n / SR:.3f}s")
 
 
 if __name__ == "__main__":

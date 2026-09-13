@@ -83,7 +83,7 @@ def test_live_label_is_not_a_title():
     assert a["left_name"] == "HUMAN"
     assert a["right_name"] == "FLY"
     assert "human vs fly" in a["print"]
-    assert "not a fly title" in a["print"]
+    assert "not a fly title" not in a["print"]
     assert "approach_commit" in a["print"]
 
 

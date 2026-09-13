@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from fly_pong.constants import load_constants
-from fly_pong.physics import clip_paddle, dy_from_action, initial_state, step
+from fly_pong.physics import clip_paddle, dy_from_action, initial_state, paddle_contact, step
 
 
 def test_paddle_clip():
@@ -15,6 +15,33 @@ def test_dy_from_action():
     assert dy_from_action(0, C=C) == 0
     assert dy_from_action(1, C=C) == -C["paddleSpeed"]
     assert dy_from_action(2, C=C) == C["paddleSpeed"]
+
+
+def test_agent_paddle_contact_flips_vx():
+    C = load_constants()
+    state = initial_state(C, serve_dir=-1.0, angle=0.0)
+    state["ball_vx"] = -5.0
+    state["ball_vy"] = 0.0
+    state["ball_y"] = state["agent_y"] + float(C["paddleH"]) / 2.0
+    state["ball_x"] = float(C["agentX"]) + float(C["paddleW"]) + float(C["ballR"]) + 2.0
+    nxt, reward = step(state, 0.0, 0.0, C, serve_angle=0.0)
+    assert reward == 0.0
+    assert nxt["ball_vx"] > 0.0
+    assert paddle_contact(state, nxt) is True
+
+
+def test_score_is_not_a_paddle_contact():
+    prev = {
+        "agent_score": 0,
+        "opp_score": 0,
+        "ball_vx": -5.0,
+    }
+    now = {
+        "agent_score": 0,
+        "opp_score": 1,
+        "ball_vx": 5.0,
+    }
+    assert paddle_contact(prev, now) is False
 
 
 def test_wall_bounce_flips_vy():
