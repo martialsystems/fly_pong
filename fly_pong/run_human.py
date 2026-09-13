@@ -3,15 +3,18 @@
 from __future__ import annotations
 
 import argparse
+import os
 from typing import Any
 
 from fly_pong.commit import ApproachCommitController
 from fly_pong.constants import load_constants
-from fly_pong.court import court_from_window_y
+from fly_pong.court import button_rects, court_from_window_y
 from fly_pong.court import draw as draw_court
-from fly_pong.court import frame_size
+from fly_pong.court import draw_scores, draw_title, frame_size, hit, play_button_rects
 from fly_pong.env import FlyPongEnv
 from fly_pong.physics import clip, lag_opponent_dy, mirror_right_state
+from fly_pong.scores import record as record_score
+from fly_pong.scores import load as load_scores
 
 
 def human_dy(keys, mouse_y: float, agent_y: float, C: dict[str, Any], pygame) -> float:
@@ -104,6 +107,12 @@ def play_headless(
         env.close()
 
 
+def _boot_match(env: FlyPongEnv, fly: ApproachCommitController | None) -> None:
+    env.reset()
+    if fly is not None:
+        fly.reset()
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -116,8 +125,7 @@ def main() -> None:
     args = parser.parse_args()
     names = live_label(args.opponent)
     print(names["print"], flush=True)
-
-    import os
+    print("menu: Start Game, High Scores, Reset (R)", flush=True)
 
     os.environ.setdefault("SDL_AUDIODRIVER", "dummy")
     pygame = __import__("pygame")
@@ -130,35 +138,81 @@ def main() -> None:
     screen = pygame.display.set_mode((fw, fh))
     pygame.display.set_caption(names["caption"])
     clock = pygame.time.Clock()
-    env.reset()
-    if fly is not None:
-        fly.reset()
+    mode = "title"
+    recorded = False
+    _boot_match(env, fly)
     running = True
     try:
         while running:
+            mouse = pygame.mouse.get_pos()
+            click = False
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
-                elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                    running = False
+                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    click = True
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        if mode == "play":
+                            mode = "title"
+                        elif mode == "scores":
+                            mode = "title"
+                        else:
+                            running = False
+                    elif event.key == pygame.K_RETURN and mode == "title":
+                        _boot_match(env, fly)
+                        recorded = False
+                        mode = "play"
+                    elif event.key in (pygame.K_r,) and mode == "play":
+                        _boot_match(env, fly)
+                        recorded = False
             keys = pygame.key.get_pressed()
-            raw = env.unwrapped._state
-            agent_dy = human_dy(keys, pygame.mouse.get_pos()[1], float(raw["agent_y"]), C, pygame)
-            opp, commit = right_dy(args.opponent, raw, C, fly)
-            env.step(0, opp_dy=opp, agent_dy=agent_dy)
-            hud = {
-                "caption": names["caption"],
-                "left_name": names["left_name"],
-                "right_name": names["right_name"],
-                "commit": commit,
-            }
-            draw_court(screen, env.unwrapped._state, C, hud)
+            menus = button_rects(fw, fh)
+            plays = play_button_rects(fw, fh)
+
+            if mode == "title":
+                if click and hit(menus["start"], mouse):
+                    _boot_match(env, fly)
+                    recorded = False
+                    mode = "play"
+                elif click and hit(menus["scores"], mouse):
+                    mode = "scores"
+                elif click and hit(menus["quit"], mouse):
+                    running = False
+                draw_title(screen, C, mouse=mouse)
+            elif mode == "scores":
+                if click and hit(menus["back"], mouse):
+                    mode = "title"
+                draw_scores(screen, C, load_scores(), mouse=mouse)
+            else:
+                commit = False
+                if click and hit(plays["reset"], mouse):
+                    _boot_match(env, fly)
+                    recorded = False
+                elif click and hit(plays["menu"], mouse):
+                    mode = "title"
+                else:
+                    raw = env.unwrapped._state
+                    if not raw["terminated"]:
+                        agent_dy = human_dy(keys, mouse[1], float(raw["agent_y"]), C, pygame)
+                        opp, commit = right_dy(args.opponent, raw, C, fly)
+                        env.step(0, opp_dy=opp, agent_dy=agent_dy)
+                    elif not recorded:
+                        record_score(int(raw["agent_score"]), int(raw["opp_score"]))
+                        recorded = True
+                if mode == "play":
+                    hud = {
+                        "caption": names["caption"],
+                        "left_name": names["left_name"],
+                        "right_name": names["right_name"],
+                        "commit": commit,
+                        "mouse": mouse,
+                        "show_play_buttons": True,
+                    }
+                    draw_court(screen, env.unwrapped._state, C, hud)
+
             pygame.display.flip()
             clock.tick(60)
-            if env.unwrapped._state["terminated"]:
-                env.reset()
-                if fly is not None:
-                    fly.reset()
     finally:
         env.close()
         pygame.display.quit()

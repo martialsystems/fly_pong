@@ -19,7 +19,7 @@ Play vs the goalie in Python (medieval hall, same physics):
 .venv/bin/python -m fly_pong.run_human --opponent approach
 ```
 
-Left paddle is human (W/S, arrows, or mouse). Right paddle is the fly (`approach_commit`: centering plus a 24-frame occupy-the-Y lunge). The window says human vs fly. Banners show a pixel knight head and a pixel housefly. This court is a toy, not a fly result and not a placement result.
+Left paddle is human (W/S, arrows, or mouse). Right paddle is the fly (`approach_commit`: centering plus a 24-frame occupy-the-Y lunge). The window says human vs fly. Start Game, Reset, and High Scores live on the title and play screens. This court is a toy, not a fly result and not a placement result.
 
 ## Locked numbers
 
