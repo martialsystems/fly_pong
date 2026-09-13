@@ -1,10 +1,60 @@
 # fly_pong
 
-Play human vs fly:
+[Play human vs fly](martialsystems.github.io/fly_pong/)
 
 ```bash
 .venv/bin/python -m fly_pong.run_human --opponent approach
 ```
+**What’s Actually Happening Here?**
+This project isn’t a full fruit-fly brain playing video games. Think of it as a focused lab experiment testing a simple question: Can an insect’s built-in visual motion detectors play Pong?
+
+**The short answer:** Motion detection alone can't hit the ball. What actually works is a simple visual reflex—the fly tracks the bright spot representing the ball and centers its paddle over it. That’s enough to beat a slow computer opponent, but it’s just basic tracking, not strategic play.
+
+*(Note: The live web demo uses a frozen AI model for the right paddle. The actual "fly" logic runs in the Python scripts).*
+
+**How the Fly "Sees":**
+
+The fly does not see a full Pong court with paddles and walls.
+
+- **The Retina:** It sees the game through a single vertical strip of 32 sensory pixels.
+- **The Image:** The ball shows up as a blurry, glowing dot on a dark background. The position of that dot is the only visual information the system gets.
+
+**Phase 1: Motion Detection Alone (Why It Fails)**
+
+The first model relies purely on standard insect motion vision (T4/T5 circuits), which work by comparing pixel brightness frame-by-frame:
+
+1. It checks if pixels are getting brighter or darker.
+
+2. It delays one signal slightly to compare neighboring pixels.
+
+3. If a bright spot shifts down, it tells the paddle to move down (and vice versa).
+
+**The Problem:** A ball moving straight across the screen—or moving very slowly—creates almost no vertical motion on a 1-D strip. The paddle stands still and misses every shot. Result: **0 wins in 20 matches.**
+
+**Phase 2: What Actually Works (The Centering Reflex)**
+
+To fix this, the authors added a second, position-based control loop:
+
+1. **Find the Blob:** Calculate where the bright spot is on the 32-pixel retina.
+
+2. **Find the Paddle:** Check the current paddle position (fed directly from game state, not vision).
+
+3. **Close the Gap:** Move the paddle toward the bright spot.
+
+4. **Boost on Approach:** When the ball flies toward the fly, it boosts movement sensitivity (a "looming" reaction). Motion data is added only as a minor predictive nudge.
+
+**The Result:** By constantly trying to align its center with the ball's center, the fly won 40 out of 40 matches against a slowed-down baseline opponent. It isn't playing strategy—it’s just acting like a automated target-tracker.
+
+---
+
+Advanced Layers (And the Limits of "Aiming")
+The authors also tested extra control layers:
+
+Interception Windows: If a ball is incoming and reachable, the paddle snaps directly to the predicted impact point instead of drifting toward it.
+
+Goalie Lunges: Positioning the paddle to block the ball rather than moving away from it.
+
+While these tweaks improved rally counts against simple opponents, none of them produced true, intentional "aiming" or strategic ball placement.
 
 Left paddle: W/S, arrows, or mouse. Right paddle: the 24-frame intercept goalie. Start Game, Reset, High Scores. M mutes. First clone: make `.venv` under [Reproduce](#reproduce).
 
