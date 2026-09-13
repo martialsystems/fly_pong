@@ -67,6 +67,10 @@ While these tweaks improved rally counts against simple opponents, none of them 
 
 Right now, the Pong game is just a downstream toy. Retuning arbitrary time constants until the paddle moves "like a biological fly" isn't neuroscience; it's just tweaking math to look cool. 
 
+Motion-only is still blind to a still blob. The paddle starts 1–2 frames late, so vs you it should feel slightly drunk. That FIFO is the placeholder to delete when clocks live in the neurons.
+
+Eval writers log motor_delay_frames, delay_ms_assumed, and t4t5_tau. I did not re-run or restamp lag 40/40.
+
 If you want to build a truly biological model, you have to separate the fly’s vision from the arcade game. This comes down to a **three-layer roadmap**: fix the biological physics, upgrade the neural wiring, and (only if you're feeling ambitious) test it on a real animal.
 
 ## Layer 1: Biological Calibration (The Immediate Next Experiment)
