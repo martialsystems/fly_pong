@@ -251,6 +251,59 @@ Restamp tables from the JSON if the numbers move.
 | `fly_pong/court.py` | Medieval hall renderer |
 | `fly_pong/run_human.py` | human vs fly (or lag) |
 
-Sequel work needs a new question. MIT license.
+What’s the Next Step Here?
 
-[Fly research index](https://gist.github.com/martialsystems/12835f747d6360781f3cc7f91f243178)
+Right now, the Pong game is just a downstream toy. Retuning arbitrary time constants until the paddle moves "like a biological fly" isn't neuroscience; it's just tweaking math to look cool. 
+
+If you want to build a truly biological model, you have to separate the fly’s vision from the arcade game. This comes down to a **three-layer roadmap**: fix the biological physics, upgrade the neural wiring, and (only if you're feeling ambitious) test it on a real animal.
+
+---
+
+### Layer 1: Biological Calibration (The Immediate Next Experiment)
+
+Freeze the Pong game completely. Stop scoring whether the paddle hits the ball and start scoring how the simulated visual cells react to real laboratory light tests. 
+
+Set up a biological clock in milliseconds, map the 32-pixel strip to a real fly's field of view (around 5° per lens, covering a 160° arc), and run the model through the exact visual stimuli neuroscientists use in live cell experiments:
+
+* **Flashes:** Flash bright and dark bars for 10 to 50 ms. Real T4 cells react strictly to ON (brightening), while T5 cells react to OFF (darkening).
+* **Apparent Motion:** Show two adjacent light flashes separated by precise delays (8 to 500 ms). Real motion-detecting cells peak around a 17 ms delay.
+* **Moving Edges & Gratings:** Pass light/dark stripes across the vision strip at varying speeds (0.1 to 8 Hz). Real fly vision peaks at around 1 Hz, not high-speed 10 Hz movement.
+
+Save these benchmark metrics into a structured log (`t4t5_physiology.json`). If the current math misses the 1 Hz frequency peak or the 17 ms correlation delay (which it probably will), **that’s a success**. It proves your cell test is working, whereas the Pong game would have hidden those biological flaws.
+
+---
+
+### Layer 2: Replacing Cartoon Math with Real Physiology
+
+The current motion detector relies on a simplified two-arm multiplication (`Current Pixel × Delayed Neighbor`). Real T4 neurons are much more complex, using three inputs: a delayed preferred side, a fast center, and a delayed suppression side to stop reverse movement.
+
+Instead of trying to simulate a massive, overwhelming brain map (connectome), make the smallest realistic upgrades:
+
+1. **Realistic Filters:** Replace basic cutoffs (`max(x,0)`) with published biological filter kernels.
+2. **Proper Delays:** Separate input delays into real-world physiological ranges (~13 to 20 ms).
+3. **Slow-Arm Channels:** Add input channels in the 100 to 500 ms range to properly recreate the 1 Hz frequency preference.
+
+Once those are added, rerun the Layer 1 test suite. Now you're checking if a model built with real millisecond kinetics actually acts like a biological cell.
+
+---
+
+### Layer 3: The Live Lab (Where Real Science Happens)
+
+If you want true biological proof, you stop using video games entirely. You put a real, tethered fruit fly under a two-photon microscope in an arena, display the exact same visual flash/motion tests, and compare real neural signal traces against your code's traces.
+
+At this level, nobody cares if a paddle hits a ball on a 60 fps digital screen. They care about matching biological data to software data.
+
+---
+
+### Keep Your Questions Straight
+
+To keep the project grounded, don't mix up what each test is actually measuring:
+
+| Question | What You're Testing |
+| :--- | :--- |
+| **"Does our math filter twitch in a few frames?"** | The original Pong code latency test. |
+| **"Does our filter behave like real fly cells?"** | **Layer 1:** Milliseconds and degrees benchmark. |
+| **"Does a biologically accurate T4 model still hit the ball?"** | Only test this *after* Layer 1 passes. |
+| **"Can an actual fly play Pong?"** | **Layer 3:** Real living animal + lab setup (Almost certainly no). |
+
+MIT. [Fly research index](https://gist.github.com/martialsystems/12835f747d6360781f3cc7f91f243178)
