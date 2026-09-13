@@ -251,13 +251,11 @@ Restamp tables from the JSON if the numbers move.
 | `fly_pong/court.py` | Medieval hall renderer |
 | `fly_pong/run_human.py` | human vs fly (or lag) |
 
-What’s the Next Step Here?
+# What’s the Next Step Here?
 
 Right now, the Pong game is just a downstream toy. Retuning arbitrary time constants until the paddle moves "like a biological fly" isn't neuroscience; it's just tweaking math to look cool. 
 
 If you want to build a truly biological model, you have to separate the fly’s vision from the arcade game. This comes down to a **three-layer roadmap**: fix the biological physics, upgrade the neural wiring, and (only if you're feeling ambitious) test it on a real animal.
-
----
 
 ## Layer 1: Biological Calibration (The Immediate Next Experiment)
 
