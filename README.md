@@ -5,6 +5,8 @@
 ```bash
 .venv/bin/python -m fly_pong.run_human --opponent approach
 ```
+# Q&A
+
 **What’s Actually Happening Here?**
 This project isn’t a full fruit-fly brain playing video games. Think of it as a focused lab experiment testing a simple question: Can an insect’s built-in visual motion detectors play Pong?
 
