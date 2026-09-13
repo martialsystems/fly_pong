@@ -14,6 +14,7 @@ First clone: make `.venv` under [Reproduce](#reproduce).
 # Q&A
 
 **What’s Actually Happening Here?**
+
 This project isn’t a full fruit-fly brain playing video games. Think of it as a focused lab experiment testing a simple question: *Can an insect’s built-in visual motion detectors play Pong?*
 
 **The short answer:** Motion detection alone cannot hit the ball. What actually works is a simple visual reflex. The fly tracks the bright spot representing the ball and centers its paddle over it. That’s enough to beat a slow computer opponent, but it’s just basic tracking, not strategic play.
