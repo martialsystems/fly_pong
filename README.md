@@ -4,6 +4,8 @@
 
 **Left paddle:** W/S, arrows, or mouse. Right paddle: the 24-frame intercept goalie (fly). Press 'M' to mute. 
 
+**Or if you wish to download and test yourself:**
+
 First clone: make `.venv` under [Reproduce](#reproduce).
 
 ```bash
