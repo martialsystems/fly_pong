@@ -47,18 +47,18 @@ To fix this, the authors added a second, position-based control loop:
 
 **The Result:** By constantly trying to align its center with the ball's center, the fly won 40 out of 40 matches against a slowed-down baseline opponent. It isn't playing strategy—it’s just acting like a automated target-tracker.
 
----
+# Technical Bits:
 
-Advanced Layers (And the Limits of "Aiming")
+**Advanced Layers (And the Limits of "Aiming")**
 The authors also tested extra control layers:
 
-Interception Windows: If a ball is incoming and reachable, the paddle snaps directly to the predicted impact point instead of drifting toward it.
+1. **Interception Windows:** If a ball is incoming and reachable, the paddle snaps directly to the predicted impact point instead of drifting toward it.
 
-Goalie Lunges: Positioning the paddle to block the ball rather than moving away from it.
+2. **Goalie Lunges:** Positioning the paddle to block the ball rather than moving away from it.
 
 While these tweaks improved rally counts against simple opponents, none of them produced true, intentional "aiming" or strategic ball placement.
 
-Left paddle: W/S, arrows, or mouse. Right paddle: the 24-frame intercept goalie. Start Game, Reset, High Scores. M mutes. First clone: make `.venv` under [Reproduce](#reproduce).
+**Left paddle:** W/S, arrows, or mouse. Right paddle: the 24-frame intercept goalie. Start Game, Reset, High Scores. M mutes. First clone: make `.venv` under [Reproduce](#reproduce).
 
 A 32-ommatidia T4/T5 strip pointed at Pong, plus a retinotopic centering reflex.
 
