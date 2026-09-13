@@ -2,15 +2,19 @@
 
 [Play human vs fly](martialsystems.github.io/fly_pong/)
 
+**Left paddle:** W/S, arrows, or mouse. Right paddle: the 24-frame intercept goalie (fly). Press 'M' to mute. 
+
+First clone: make `.venv` under [Reproduce](#reproduce).
+
 ```bash
 .venv/bin/python -m fly_pong.run_human --opponent approach
 ```
 # Q&A
 
 **What’s Actually Happening Here?**
-This project isn’t a full fruit-fly brain playing video games. Think of it as a focused lab experiment testing a simple question: Can an insect’s built-in visual motion detectors play Pong?
+This project isn’t a full fruit-fly brain playing video games. Think of it as a focused lab experiment testing a simple question: *Can an insect’s built-in visual motion detectors play Pong?*
 
-**The short answer:** Motion detection alone can't hit the ball. What actually works is a simple visual reflex—the fly tracks the bright spot representing the ball and centers its paddle over it. That’s enough to beat a slow computer opponent, but it’s just basic tracking, not strategic play.
+**The short answer:** Motion detection alone cannot hit the ball. What actually works is a simple visual reflex. The fly tracks the bright spot representing the ball and centers its paddle over it. That’s enough to beat a slow computer opponent, but it’s just basic tracking, not strategic play.
 
 *(Note: The live web demo uses a frozen AI model for the right paddle. The actual "fly" logic runs in the Python scripts).*
 
@@ -31,7 +35,7 @@ The first model relies purely on standard insect motion vision (T4/T5 circuits),
 
 3. If a bright spot shifts down, it tells the paddle to move down (and vice versa).
 
-**The Problem:** A ball moving straight across the screen—or moving very slowly—creates almost no vertical motion on a 1-D strip. The paddle stands still and misses every shot. Result: **0 wins in 20 matches.**
+**The Problem:** A ball moving straight across the screen (or very slowly), creates almost no vertical motion on a 1-D strip. The paddle stands still and misses every shot. Result: **0 wins in 20 matches.**
 
 **Phase 2: What Actually Works (The Centering Reflex)**
 
@@ -47,22 +51,21 @@ To fix this, the authors added a second, position-based control loop:
 
 **The Result:** By constantly trying to align its center with the ball's center, the fly won 40 out of 40 matches against a slowed-down baseline opponent. It isn't playing strategy—it’s just acting like a automated target-tracker.
 
-# Technical Bits:
-
 **Advanced Layers (And the Limits of "Aiming")**
+
 The authors also tested extra control layers:
 
-1. **Interception Windows:** If a ball is incoming and reachable, the paddle snaps directly to the predicted impact point instead of drifting toward it.
+- **Interception Windows:** If a ball is incoming and reachable, the paddle snaps directly to the predicted impact point instead of drifting toward it.
 
-2. **Goalie Lunges:** Positioning the paddle to block the ball rather than moving away from it.
+- **Goalie Lunges:** Positioning the paddle to block the ball rather than moving away from it.
 
 While these tweaks improved rally counts against simple opponents, none of them produced true, intentional "aiming" or strategic ball placement.
 
-**Left paddle:** W/S, arrows, or mouse. Right paddle: the 24-frame intercept goalie. Start Game, Reset, High Scores. M mutes. First clone: make `.venv` under [Reproduce](#reproduce).
+# Technical Bits:
 
-A 32-ommatidia T4/T5 strip pointed at Pong, plus a retinotopic centering reflex.
+- A 32-ommatidia T4/T5 strip pointed at Pong, plus a retinotopic centering reflex.
 
-Motion alone cannot play. Centering can track and win against the env lag paddle.
+- Motion alone cannot play. Centering can track and win against the env lag paddle.
 Placement is closed. A 1-D motion strip can return a Pong ball. It does not place one.
 
 **Question.** Can a fly-style vertical motion detector play Pong?
