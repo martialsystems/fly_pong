@@ -1,4 +1,4 @@
-"""Medieval hall for the Python court. Same physics. Not a fly title."""
+"""Medieval hall for the Python court. Physics size unchanged. Not a fly title."""
 
 from __future__ import annotations
 
@@ -6,10 +6,12 @@ from typing import Any
 
 import numpy as np
 
+SCALE = 2
+SIDE = 112
+
 OAK = (16, 10, 7)
 STONE = (58, 45, 34)
 STONE_LT = (86, 68, 52)
-MORTAR = (32, 24, 18)
 BEAM = (42, 30, 20)
 GOLD = (198, 156, 56)
 GOLD_DK = (118, 86, 28)
@@ -23,54 +25,141 @@ WOOD_DK = (68, 42, 18)
 SABLE = (14, 12, 10)
 HIGHLIGHT = (240, 228, 196)
 
+# Pixel-art palettes. "." is skip.
+GUY_PAL = {
+    "K": (22, 16, 12),
+    "H": (52, 34, 22),
+    "F": (198, 152, 112),
+    "W": (236, 220, 190),
+    "E": (18, 14, 12),
+    "N": (168, 128, 92),
+    "T": (148, 30, 30),
+    "B": (92, 20, 20),
+    "G": (198, 156, 56),
+    "L": (56, 42, 32),
+    "O": (28, 22, 16),
+}
+FLY_PAL = {
+    "K": (18, 14, 10),
+    "Y": (186, 150, 48),
+    "D": (92, 70, 22),
+    "R": (176, 36, 28),
+    "W": (210, 200, 178),
+    "A": (168, 160, 148),
+}
+
+# 16 x 20. Human, tunic, hose.
+GUY = (
+    "......KKKK......",
+    ".....KHHHHK.....",
+    "....KHHHHHHK....",
+    "....KHFFFFHK....",
+    "...KKFFFFFFKK...",
+    "...KFWEFFWEFK...",
+    "...KFFFFFFFFK...",
+    "....KFFFFFFK....",
+    ".....KNNNNK.....",
+    "....KBTTTTBK....",
+    "...KBTTTTTTBK...",
+    "...KTTTGGTTTK...",
+    "...KBTTTTTTBK...",
+    "....KTTKKTTK....",
+    "....KLK..KLK....",
+    "....KLK..KLK....",
+    "....KLK..KLK....",
+    "....KOK..KOK....",
+    "....KKK..KKK....",
+    "................",
+)
+
+# Top-down housefly: wings, red eyes, dark abdomen, legs.
+FLY = (
+    "..WWWWWWWW..",
+    ".W........W.",
+    ".W.KKKKKK.W.",
+    "..KRRRRRRK..",
+    "..KDDDDDDK..",
+    "...KDDDDK...",
+    "..K.KDDK.K..",
+    ".K...KK...K.",
+    "............",
+    "............",
+    "............",
+    "............",
+)
+
+
+def frame_size(C: dict[str, Any]) -> tuple[int, int]:
+    return int(C["width"]) * SCALE + 2 * SIDE, int(C["height"]) * SCALE
+
+
+def court_from_window_y(mouse_y: float) -> float:
+    return float(mouse_y) / float(SCALE)
+
+
 def _fonts(pygame):
     if not pygame.get_init():
         pygame.init()
     if not pygame.font.get_init():
         pygame.font.init()
-    return pygame.font.Font(None, 24), pygame.font.Font(None, 16)
+    return pygame.font.Font(None, 36), pygame.font.Font(None, 22)
 
 
 def _bricks(pygame, surf, w: int, h: int) -> None:
-    bw, bh = 28, 12
+    bw, bh = 28 * SCALE, 12 * SCALE
     for row, y in enumerate(range(0, h, bh)):
         ox = (bw // 2) if row % 2 else 0
         x = -ox
         while x < w:
             pygame.draw.rect(surf, STONE, (x + 1, y + 1, bw - 2, bh - 2))
-            pygame.draw.rect(surf, STONE_LT, (x + 1, y + 1, bw - 2, 2))
+            pygame.draw.rect(surf, STONE_LT, (x + 1, y + 1, bw - 2, 3))
             x += bw
 
 
-def _banner(pygame, surf, x: int, field, stripe) -> None:
-    pygame.draw.rect(surf, GOLD_DK, (x + 10, 18, 4, 10))
-    pts = [(x, 28), (x + 24, 28), (x + 20, 108), (x + 12, 118), (x + 4, 108)]
+def _blit_pixels(pygame, surf, grid: tuple[str, ...], origin: tuple[int, int], px: int, pal: dict) -> None:
+    x0, y0 = origin
+    for j, row in enumerate(grid):
+        for i, ch in enumerate(row):
+            color = pal.get(ch)
+            if color is None:
+                continue
+            pygame.draw.rect(surf, color, (x0 + i * px, y0 + j * px, px, px))
+
+
+def _banner(pygame, surf, x: int, y: int, w: int, h: int, field) -> None:
+    pygame.draw.rect(surf, GOLD_DK, (x + w // 2 - 3, y - 14, 6, 16))
+    tip = y + h
+    pts = [
+        (x, y),
+        (x + w, y),
+        (x + w - 8, tip - 16),
+        (x + w // 2, tip),
+        (x + 8, tip - 16),
+    ]
     pygame.draw.polygon(surf, field, pts)
-    pygame.draw.polygon(surf, GOLD, pts, 1)
-    pygame.draw.rect(surf, stripe, (x + 10, 32, 4, 70))
+    pygame.draw.polygon(surf, GOLD, pts, 2)
 
 
-def _paddle(pygame, surf, x: int, y: int, w: int, h: int, *, commit: bool, you: bool) -> None:
-    trim = GOLD if commit or you else IRON_LT
-    body = WOOD if you else (72, 48, 28)
-    dark = WOOD_DK
-    pygame.draw.rect(surf, dark, (x - 1, y - 2, w + 2, h + 4))
+def _paddle(pygame, surf, x: int, y: int, w: int, h: int, *, commit: bool, human: bool) -> None:
+    trim = GOLD if commit or human else IRON_LT
+    body = WOOD if human else (72, 48, 28)
+    pygame.draw.rect(surf, WOOD_DK, (x - 2, y - 3, w + 4, h + 6))
     pygame.draw.rect(surf, body, (x, y, w, h))
-    pygame.draw.rect(surf, trim, (x, y, w, h), 1)
-    for i, fy in enumerate((0.2, 0.5, 0.8)):
+    pygame.draw.rect(surf, trim, (x, y, w, h), 2)
+    for fy in (0.2, 0.5, 0.8):
         cy = int(y + h * fy)
-        pygame.draw.circle(surf, IRON, (x + w // 2, cy), 2)
+        pygame.draw.circle(surf, IRON, (x + w // 2, cy), 3)
         pygame.draw.circle(surf, IRON_LT, (x + w // 2 - 1, cy - 1), 1)
-    if you:
-        pygame.draw.rect(surf, CRIMSON, (x + 1, y + 4, max(w - 2, 1), 6))
+    if human:
+        pygame.draw.rect(surf, CRIMSON, (x + 2, y + 6, max(w - 4, 1), 8))
     if commit:
-        pygame.draw.rect(surf, GOLD, (x - 2, y - 3, w + 4, h + 6), 2)
+        pygame.draw.rect(surf, GOLD, (x - 3, y - 4, w + 6, h + 8), 3)
 
 
 def _ball(pygame, surf, cx: int, cy: int, r: int) -> None:
     pygame.draw.circle(surf, IRON, (cx, cy), r)
-    pygame.draw.circle(surf, IRON_LT, (cx, cy), r, 1)
-    pygame.draw.circle(surf, HIGHLIGHT, (cx - r // 3, cy - r // 3), max(r // 3, 1))
+    pygame.draw.circle(surf, IRON_LT, (cx, cy), r, 2)
+    pygame.draw.circle(surf, HIGHLIGHT, (cx - r // 3, cy - r // 3), max(r // 3, 2))
 
 
 def draw(
@@ -81,66 +170,64 @@ def draw(
 ) -> None:
     pygame = __import__("pygame")
     hud = hud or {}
-    w = int(C["width"])
-    h = int(C["height"])
+    fw, fh = frame_size(C)
+    ox, s = SIDE, SCALE
     surf.fill(OAK)
-    _bricks(pygame, surf, w, h)
-    pygame.draw.rect(surf, BEAM, (0, 0, w, 18))
-    pygame.draw.rect(surf, BEAM, (0, h - 18, w, 18))
-    pygame.draw.rect(surf, GOLD_DK, (0, 16, w, 2))
-    pygame.draw.rect(surf, GOLD_DK, (0, h - 18, w, 2))
-    _banner(pygame, surf, 6, CRIMSON, GOLD)
-    _banner(pygame, surf, w - 30, SABLE, GOLD)
-    mid = w // 2
-    for y in range(22, h - 22, 14):
-        pygame.draw.rect(surf, GOLD_DK, (mid - 1, y, 2, 8))
-    pygame.draw.circle(surf, CRIMSON_DK, (mid, h // 2), 14)
-    pygame.draw.circle(surf, GOLD, (mid, h // 2), 14, 2)
-    pygame.draw.circle(surf, GOLD, (mid, h // 2), 5)
-    pygame.draw.circle(surf, GOLD, (36, 9), 4)
-    pygame.draw.circle(surf, GOLD, (w - 36, 9), 4)
+    _bricks(pygame, surf, fw, fh)
+    beam = 16 * s // 2 + 8
+    pygame.draw.rect(surf, BEAM, (0, 0, fw, beam))
+    pygame.draw.rect(surf, BEAM, (0, fh - beam, fw, beam))
+    pygame.draw.rect(surf, GOLD_DK, (0, beam - 3, fw, 3))
+    pygame.draw.rect(surf, GOLD_DK, (0, fh - beam, fw, 3))
 
-    pw = int(C["paddleW"])
-    ph = int(C["paddleH"])
-    _paddle(
-        pygame,
-        surf,
-        int(C["agentX"]),
-        int(state["agent_y"]),
-        pw,
-        ph,
-        commit=False,
-        you=True,
-    )
-    _paddle(
-        pygame,
-        surf,
-        int(C["oppX"]),
-        int(state["opp_y"]),
-        pw,
-        ph,
-        commit=bool(hud.get("commit")),
-        you=False,
-    )
-    _ball(pygame, surf, int(state["ball_x"]), int(state["ball_y"]), int(C["ballR"]))
+    bw, bh = 96, 240
+    left_b = 8
+    right_b = fw - 8 - bw
+    _banner(pygame, surf, left_b, beam + 8, bw, bh, CRIMSON)
+    _banner(pygame, surf, right_b, beam + 8, bw, bh, SABLE)
+    guy_px, fly_px = 4, 5
+    guy_w = len(GUY[0]) * guy_px
+    fly_w = len(FLY[0]) * fly_px
+    _blit_pixels(pygame, surf, GUY, (left_b + (bw - guy_w) // 2, beam + 28), guy_px, GUY_PAL)
+    _blit_pixels(pygame, surf, FLY, (right_b + (bw - fly_w) // 2, beam + 36), fly_px, FLY_PAL)
+
+    mid = ox + int(C["width"]) * s // 2
+    for y in range(beam + 8, fh - beam - 8, 16):
+        pygame.draw.rect(surf, GOLD_DK, (mid - 1, y, 3, 9))
+    pygame.draw.circle(surf, CRIMSON_DK, (mid, fh // 2), 18)
+    pygame.draw.circle(surf, GOLD, (mid, fh // 2), 18, 3)
+    pygame.draw.circle(surf, GOLD, (mid, fh // 2), 6)
+    pygame.draw.circle(surf, GOLD, (ox + 40, beam // 2), 5)
+    pygame.draw.circle(surf, GOLD, (fw - ox - 40, beam // 2), 5)
+
+    def P(x: float, y: float) -> tuple[int, int]:
+        return int(ox + x * s), int(y * s)
+
+    pw = int(C["paddleW"]) * s
+    ph = int(C["paddleH"]) * s
+    ax, ay = P(float(C["agentX"]), float(state["agent_y"]))
+    rx, ry = P(float(C["oppX"]), float(state["opp_y"]))
+    _paddle(pygame, surf, ax, ay, pw, ph, commit=False, human=True)
+    _paddle(pygame, surf, rx, ry, pw, ph, commit=bool(hud.get("commit")), human=False)
+    bx, by = P(float(state["ball_x"]), float(state["ball_y"]))
+    _ball(pygame, surf, bx, by, int(C["ballR"]) * s)
 
     font, small = _fonts(pygame)
-    left = str(hud.get("left_name") or "YOU")
-    right = str(hud.get("right_name") or "GOALIE")
+    left = str(hud.get("left_name") or "HUMAN")
+    right = str(hud.get("right_name") or "FLY")
     score = f"{left}  {int(state['agent_score'])}     {int(state['opp_score'])}  {right}"
     label = font.render(score, True, CREAM)
-    surf.blit(label, (mid - label.get_width() // 2, 20))
-    caption = str(hud.get("caption") or "human vs approach_commit")
+    surf.blit(label, (mid - label.get_width() // 2, beam + 4))
+    caption = str(hud.get("caption") or "human vs fly")
     cap = small.render(caption, True, GOLD)
-    surf.blit(cap, (mid - cap.get_width() // 2, h - 16))
+    surf.blit(cap, (mid - cap.get_width() // 2, fh - beam + 6))
 
 
 def rgb_array(state: dict[str, Any], C: dict[str, Any], hud: dict[str, Any] | None = None) -> np.ndarray:
     pygame = __import__("pygame")
     if not pygame.get_init():
         pygame.init()
-    w = int(C["width"])
-    h = int(C["height"])
-    surf = pygame.Surface((w, h))
+    fw, fh = frame_size(C)
+    surf = pygame.Surface((fw, fh))
     draw(surf, state, C, hud)
     return np.transpose(np.array(pygame.surfarray.pixels3d(surf)), (1, 0, 2)).copy()

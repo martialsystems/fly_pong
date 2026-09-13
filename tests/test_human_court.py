@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from fly_pong.commit import ApproachCommitController
 from fly_pong.constants import load_constants
+from fly_pong.court import frame_size
 from fly_pong.env import FlyPongEnv
 from fly_pong.physics import lag_opponent_dy, mirror_right_state
 from fly_pong.run_human import live_label, play_headless, right_dy
@@ -78,7 +79,10 @@ def test_play_headless_approach_differs_from_lag():
 
 def test_live_label_is_not_a_title():
     a = live_label("approach")
-    assert a["caption"] == "human vs approach_commit"
+    assert a["caption"] == "human vs fly"
+    assert a["left_name"] == "HUMAN"
+    assert a["right_name"] == "FLY"
+    assert "human vs fly" in a["print"]
     assert "not a fly title" in a["print"]
     assert "approach_commit" in a["print"]
 
@@ -89,8 +93,17 @@ def test_medieval_rgb_is_not_the_old_void():
     frame = env.render()
     env.close()
     assert frame is not None
-    assert frame.shape == (360, 480, 3)
+    fw, fh = frame_size(env.C)
+    assert frame.shape == (fh, fw, 3)
+    assert fw > 480 and fh > 360
     corner = tuple(int(v) for v in frame[4, 4])
     assert corner != (12, 12, 18)
-    torch = tuple(int(v) for v in frame[9, 36])
-    assert torch[0] > 150 and torch[1] > 100  # gold finial, not the old yellow ball
+    def _any(x0, y0, x1, y1, pred):
+        for y in range(y0, y1):
+            for x in range(x0, x1):
+                if pred(tuple(int(v) for v in frame[y, x])):
+                    return True
+        return False
+
+    assert _any(16, 40, 110, 160, lambda p: p[0] > 160 and 100 < p[1] < 180 and p[2] < 140)
+    assert _any(fw - 120, 40, fw - 16, 160, lambda p: p[0] > 140 and p[1] < 90)

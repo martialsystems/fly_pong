@@ -3,6 +3,7 @@ from __future__ import annotations
 import numpy as np
 from gymnasium.utils.env_checker import check_env
 
+from fly_pong.court import frame_size
 from fly_pong.env import FlyPongEnv
 from fly_pong.obs import OBS_HIGH, OBS_LOW, encode, encode_mirrored_right
 
@@ -48,7 +49,8 @@ def test_rgb_array_shape():
     env.reset(seed=1)
     frame = env.render()
     assert frame is not None
-    assert frame.shape == (env.height, env.width, 3)
+    fw, fh = frame_size(env.C)
+    assert frame.shape == (fh, fw, 3)
     env.close()
 
 

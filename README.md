@@ -19,7 +19,7 @@ Play vs the goalie in Python (medieval hall, same physics):
 .venv/bin/python -m fly_pong.run_human --opponent approach
 ```
 
-Left paddle is you (W/S, arrows, or mouse). Right paddle is `approach_commit`: centering plus a 24-frame occupy-the-Y lunge. This court is a toy, not a fly result and not a placement result.
+Left paddle is human (W/S, arrows, or mouse). Right paddle is the fly (`approach_commit`: centering plus a 24-frame occupy-the-Y lunge). The window says human vs fly. This court is a toy, not a fly result and not a placement result.
 
 ## Locked numbers
 
@@ -190,7 +190,7 @@ Restamp tables from the JSON if the numbers move.
 | `scripts/train_unused_move.py` | Refit move gates over unused 1-7 |
 | `scripts/eval_unused_move_gates.py` | Unused gates vs lag and Phase A |
 | `fly_pong/court.py` | Medieval hall renderer |
-| `fly_pong/run_human.py` | You vs approach_commit or lag |
+| `fly_pong/run_human.py` | human vs fly (or lag) |
 
 Sequel work needs a new question. MIT license.
 

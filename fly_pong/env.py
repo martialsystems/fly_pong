@@ -11,6 +11,7 @@ from gymnasium import spaces
 from fly_pong.constants import load_constants
 from fly_pong.obs import OBS_HIGH, OBS_LOW, encode
 from fly_pong.court import draw as draw_court
+from fly_pong.court import frame_size
 from fly_pong.physics import (
     dy_from_action,
     initial_state,
@@ -46,9 +47,9 @@ class FlyPongEnv(gym.Env):
         self._clock = None
         self._pygame = None
         self.hud: dict[str, Any] = {
-            "caption": "human vs lag_chase",
-            "left_name": "YOU",
-            "right_name": "LAG",
+            "caption": "human vs fly",
+            "left_name": "HUMAN",
+            "right_name": "FLY",
             "commit": False,
         }
 
@@ -139,11 +140,12 @@ class FlyPongEnv(gym.Env):
         if self._screen is None:
             pygame.init()
             pygame.display.init()
+            fw, fh = frame_size(self.C)
             if self.render_mode == "human":
-                self._screen = pygame.display.set_mode((self.width, self.height))
-                pygame.display.set_caption(str(self.hud.get("caption") or "human vs lag_chase"))
+                self._screen = pygame.display.set_mode((fw, fh))
+                pygame.display.set_caption(str(self.hud.get("caption") or "human vs fly"))
             else:
-                self._screen = pygame.Surface((self.width, self.height))
+                self._screen = pygame.Surface((fw, fh))
             self._clock = pygame.time.Clock()
 
         draw_court(self._screen, self._state, C, self.hud)
