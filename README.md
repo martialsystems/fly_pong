@@ -1,5 +1,13 @@
 # fly_pong
 
+Play human vs fly:
+
+```bash
+.venv/bin/python -m fly_pong.run_human --opponent approach
+```
+
+Left paddle: W/S, arrows, or mouse. Right paddle: the 24-frame intercept goalie. Start Game, Reset, High Scores. M mutes. First clone: make `.venv` under [Reproduce](#reproduce).
+
 A 32-ommatidia T4/T5 strip pointed at Pong, plus a retinotopic centering reflex.
 
 Motion alone cannot play. Centering can track and win against the env lag paddle.
@@ -13,13 +21,7 @@ Add a retinotopic centering reflex (luminance center of mass vs paddle height) a
 
 That is tracking, not placement. Phase B vs lag is a null (open-hit ~0.5). Later aim heads moved points, geo, or contact against a frozen Phase A returner; none cleared geo, leak, and match bar together. Self-play is not part of this title.
 
-Play vs the goalie in Python (medieval hall). The locked evals keep bounceGain 1.02. The window uses 1.008 with no speed cap, so the ball keeps climbing until the fly's 24-frame reach gate fails.
-
-```bash
-.venv/bin/python -m fly_pong.run_human --opponent approach
-```
-
-Left paddle is human (W/S, arrows, or mouse). Right paddle is the fly (`approach_commit`: centering plus a 24-frame occupy-the-Y lunge). The window says human vs fly. Start Game, Reset, and High Scores live on the title and play screens. A looping wing-buzz bed plays from `fly_pong/assets/bgm.wav` (M mutes). This court is a toy, not a fly result and not a placement result.
+The playable window uses bounceGain 1.008 with no speed cap, so the ball keeps climbing until the fly's 24-frame reach gate fails. Locked evals keep bounceGain 1.02. This court is not a fly result and not a placement result.
 
 ## Locked numbers
 

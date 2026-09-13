@@ -21,6 +21,7 @@ def test_readme_quality():
     assert ".venv/bin/python" in text
     assert "python -m fly_pong.run_human" in text
     assert "--opponent approach" in text
+    assert text.index("run_human --opponent approach") < text.index("**Question.**")
     assert "Play the PPO" not in text
     assert "Do not start another aim head" not in text
     assert "Do not retcon" not in text
@@ -35,7 +36,6 @@ def test_readme_quality():
     assert "Do not retcon the +52 point OR-bar into aim" in agents
     assert "run_human --opponent approach" in agents
     hook = (ROOT / "description.txt").read_text(encoding="utf-8").strip()
-    assert hook == (
-        "T4/T5 + centering returns vs lag. Placement is closed. "
-        "Play vs approach_commit in Python."
-    )
+    assert hook == "T4/T5 + centering returns vs lag. Placement is closed."
+    assert "Play vs" not in hook
+    assert "run_human" not in hook
