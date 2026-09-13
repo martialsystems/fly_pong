@@ -9,8 +9,10 @@ from pathlib import Path
 
 import numpy as np
 
+from fly_pong.brain import MOTOR_DELAY_FRAMES, T4T5_TAU, delay_ms_assumed
 from fly_pong.bridge import FlyBrainBridge
 from fly_pong.env import FlyPongEnv
+from fly_pong.physics import dy_from_action
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_OUT = ROOT / "logs" / "fly_gate.json"
@@ -26,7 +28,13 @@ def play_one(seed: int, max_frames: int) -> dict:
     try:
         while frames < max_frames:
             action, _neural = brain.brain_step(info["state"])
-            _obs, _reward, terminated, truncated, info = env.step(action)
+            dy = brain.motor.push(dy_from_action(int(action), C=env.unwrapped.C))
+            delayed = 0
+            if dy < -0.5:
+                delayed = 1
+            elif dy > 0.5:
+                delayed = 2
+            _obs, _reward, terminated, truncated, info = env.step(delayed)
             state = info["state"]
             ph = float(state["paddle_h"])
             center = float(state["paddle_y"]) + ph / 2.0
@@ -69,6 +77,9 @@ def main() -> None:
         "max_frames": int(args.max_frames),
         "opponent": "lag_chase",
         "controller": "t4t5_plus_retinotopic_centering",
+        "motor_delay_frames": int(MOTOR_DELAY_FRAMES),
+        "delay_ms_assumed": delay_ms_assumed(),
+        "t4t5_tau": float(T4T5_TAU),
         "wins": wins,
         "losses": int(args.games) - wins,
         "win_rate": wins / float(args.games),

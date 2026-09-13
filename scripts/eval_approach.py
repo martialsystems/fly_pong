@@ -11,7 +11,7 @@ from typing import Any
 
 import numpy as np
 
-from fly_pong.brain import decode_motor
+from fly_pong.brain import MOTOR_DELAY_FRAMES, T4T5_TAU, decode_motor, delay_ms_assumed
 from fly_pong.bridge import FlyBrainBridge
 from fly_pong.commit import (
     COMMIT_WINDOW,
@@ -61,7 +61,12 @@ class FlyLoopAgent:
                 self.bridge.vel_gain * float(neural["steering"]),
                 threshold=self.bridge.pos_threshold,
             )
-        dy = float(dy_from_action(int(action), C=self.C))
+        dy = float(self.bridge.motor.push(dy_from_action(int(action), C=self.C)))
+        action = 0
+        if dy < -0.5:
+            action = 1
+        elif dy > 0.5:
+            action = 2
         incoming = float(state["ball_vx"]) < 0.0
         y_paddle = _paddle_center(state, self.C)
         self.stats["total_frames"] += 1
@@ -305,6 +310,9 @@ def main() -> None:
         "log_line": hyp["log_line"],
         "hypothesis_text": hyp["hypothesis"],
         "window_frames": int(COMMIT_WINDOW),
+        "motor_delay_frames": int(MOTOR_DELAY_FRAMES),
+        "delay_ms_assumed": delay_ms_assumed(),
+        "t4t5_tau": float(T4T5_TAU),
         "escape_sign_approach": -1,
         "escape_sign_flee": 1,
         "escape_sign_used": int(ESCAPE_SIGN),

@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from fly_pong.brain import MOTOR_DELAY_FRAMES
 from fly_pong.commit import (
     COMMIT_WINDOW,
     ESCAPE_SIGN,
@@ -110,11 +111,14 @@ def test_controller_steps_retina_and_remaps_motor():
     ctrl = ApproachCommitController(oracle_y=True, escape_sign=-1)
     ctrl.reset()
     st = _incoming_state(ball_y=220.0, paddle_y=150.0, vy=0.0, dist=40.0)
-    cmd = ctrl.step_command(st)
-    assert cmd["u_offset"] == 0.0
-    assert cmd["commit"] is True
+    first = ctrl.step_command(st)
+    assert first["u_offset"] == 0.0
+    assert first["commit"] is True
+    cmd = first
+    for _ in range(MOTOR_DELAY_FRAMES):
+        cmd = ctrl.step_command(st)
     assert cmd["dy"] > 0.0
-    assert ctrl.stats["commit_frames"] == 1
+    assert ctrl.stats["commit_frames"] == MOTOR_DELAY_FRAMES + 1
     assert should_commit(
         incoming=True,
         tau=cmd["tau"],

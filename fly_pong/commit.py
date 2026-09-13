@@ -246,13 +246,14 @@ class ApproachCommitController:
             dy = float(cmd["dy"])
         else:
             dy = float(dy_from_action(int(action_c), C=self.C))
-            cmd["dy"] = dy
-            action_c = 0
-            if dy < -0.5:
-                action_c = 1
-            elif dy > 0.5:
-                action_c = 2
-            cmd["action"] = action_c
+        dy = float(self.bridge.motor.push(dy))
+        cmd["dy"] = dy
+        action_c = 0
+        if dy < -0.5:
+            action_c = 1
+        elif dy > 0.5:
+            action_c = 2
+        cmd["action"] = action_c
 
         self.stats["total_frames"] += 1
         if cmd["in_window"]:

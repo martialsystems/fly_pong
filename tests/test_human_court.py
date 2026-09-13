@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from fly_pong.brain import MOTOR_DELAY_FRAMES
 from fly_pong.commit import ApproachCommitController
 from fly_pong.constants import load_constants
 from fly_pong.court import ASSETS, frame_size
@@ -65,7 +66,9 @@ def test_approach_right_paddle_tracks_incoming():
         "agent_score": 0,
         "opp_score": 0,
     }
-    dy, _commit = right_dy("approach", state, C, fly)
+    dy = 0.0
+    for _ in range(MOTOR_DELAY_FRAMES + 1):
+        dy, _commit = right_dy("approach", state, C, fly)
     assert dy > 0.0
 
 

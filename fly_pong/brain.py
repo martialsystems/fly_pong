@@ -2,7 +2,51 @@
 
 from __future__ import annotations
 
+from collections import deque
+
 import numpy as np
+
+from fly_pong.constants import load_constants
+
+# Correlator delay. 1.5 frames ≈ 25 ms at fps 60. Mi1/Tm3-sized. dt=1.
+T4T5_TAU = 1.5
+# Judgment FIFO. Placeholder until clocks live in the neurons.
+# delay_ms_assumed = MOTOR_DELAY_FRAMES * 1000 / fps
+MOTOR_DELAY_FRAMES = 2  # 33 ms at 60 fps. 1≈17 ms, 3≈50 ms. Stop at 3.
+
+
+def delay_ms_assumed(frames: int | None = None, fps: float | None = None) -> float:
+    rate = float(load_constants()["fps"] if fps is None else fps)
+    n = MOTOR_DELAY_FRAMES if frames is None else int(frames)
+    return n * 1000.0 / rate
+
+
+class MotorDelay:
+    """Fixed FIFO of paddle dy. Read the oldest sample.
+
+    Centering stays instant inside the circuit. This is the late paddle.
+    """
+
+    def __init__(self, frames: int | None = None):
+        C = load_constants()
+        self.n = int(MOTOR_DELAY_FRAMES if frames is None else frames)
+        self.fps = float(C["fps"])
+        # delay_ms_assumed = MOTOR_DELAY_FRAMES * 1000 / fps
+        self.delay_ms_assumed = self.n * 1000.0 / self.fps
+        self.reset()
+
+    def reset(self) -> None:
+        if self.n <= 0:
+            self._q = deque()
+            return
+        self._q = deque([0.0] * self.n, maxlen=self.n)
+
+    def push(self, dy: float) -> float:
+        if self.n <= 0:
+            return float(dy)
+        out = float(self._q[0])
+        self._q.append(float(dy))
+        return out
 
 
 class T4T5MotionCircuit:
@@ -13,8 +57,9 @@ class T4T5MotionCircuit:
     Subtypes used here: c up, d down. Pong only needs vertical motion.
     """
 
-    def __init__(self, n: int = 32, tau: float = 0.35, dt: float = 1.0):
+    def __init__(self, n: int = 32, tau: float = T4T5_TAU, dt: float = 1.0):
         self.n = int(n)
+        self.tau = float(tau)
         self.alpha = float(np.exp(-dt / tau))
         self.prev_luma = np.zeros(self.n, dtype=np.float32)
         self.delay_on = np.zeros(self.n, dtype=np.float32)

@@ -6,7 +6,7 @@ from typing import Any
 
 import numpy as np
 
-from fly_pong.brain import T4T5MotionCircuit, decode_motor
+from fly_pong.brain import MotorDelay, T4T5MotionCircuit, decode_motor
 from fly_pong.sensors import CompoundEye
 
 
@@ -31,6 +31,7 @@ class FlyBrainBridge:
     ):
         self.eye = CompoundEye(n_ommatidia)
         self.circuit = T4T5MotionCircuit(n=n_ommatidia)
+        self.motor = MotorDelay()
         self.vel_gain = float(vel_gain)
         self.pos_threshold = float(pos_threshold)
         self.approach_gain = float(approach_gain)
@@ -38,6 +39,7 @@ class FlyBrainBridge:
 
     def reset(self) -> None:
         self.circuit.reset()
+        self.motor.reset()
 
     def translate_input(self, state: dict[str, Any]) -> np.ndarray:
         return self.eye.encode(state)

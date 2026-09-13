@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from fly_pong.brain import T4T5MotionCircuit, decode_motor
+from fly_pong.brain import T4T5_TAU, T4T5MotionCircuit, decode_motor
 from fly_pong.bridge import FlyBrainBridge
 from fly_pong.fbl_adapter import FlyBrainLabAdapter
 from fly_pong.sensors import CompoundEye
@@ -18,7 +18,7 @@ def _moving_blob(n: int, y0: float, y1: float, frames: int) -> list[np.ndarray]:
 
 
 def test_downward_blob_steers_down():
-    circuit = T4T5MotionCircuit(n=32)
+    circuit = T4T5MotionCircuit(n=32, tau=T4T5_TAU)
     fields = _moving_blob(32, 0.2, 0.8, 12)
     last = None
     for field in fields:

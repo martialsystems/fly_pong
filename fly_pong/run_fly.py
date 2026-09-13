@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from fly_pong.bridge import FlyBrainBridge
 from fly_pong.env import FlyPongEnv
+from fly_pong.physics import dy_from_action
 
 
 def main() -> None:
@@ -14,7 +15,13 @@ def main() -> None:
     try:
         while True:
             action, neural = brain.brain_step(info["state"])
-            obs, reward, terminated, truncated, info = env.step(action)
+            dy = brain.motor.push(dy_from_action(int(action), C=env.unwrapped.C))
+            delayed = 0
+            if dy < -0.5:
+                delayed = 1
+            elif dy > 0.5:
+                delayed = 2
+            obs, reward, terminated, truncated, info = env.step(delayed)
             if reward != 0:
                 state = info["state"]
                 print(
