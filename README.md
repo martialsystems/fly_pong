@@ -28,7 +28,7 @@ The fly does not see a full Pong court with paddles and walls.
 - **The Retina:** It sees the game through a single vertical strip of 32 sensory pixels.
 - **The Image:** The ball shows up as a blurry, glowing dot on a dark background. The position of that dot is the only visual information the system gets.
 
-**Phase 1: Motion Detection Alone (Why It Fails)**
+## Phase 1: Motion Detection Alone (Why It Fails)
 
 The first model relies purely on standard insect motion vision (T4/T5 circuits), which work by comparing pixel brightness frame-by-frame:
 
@@ -40,7 +40,7 @@ The first model relies purely on standard insect motion vision (T4/T5 circuits),
 
 **The Problem:** A ball moving straight across the screen (or very slowly), creates almost no vertical motion on a 1-D strip. The paddle stands still and misses every shot. Result: **0 wins in 20 matches.**
 
-**Phase 2: What Actually Works (The Centering Reflex)**
+## Phase 2: What Actually Works (The Centering Reflex)
 
 To fix this, the authors added a second, position-based control loop:
 
