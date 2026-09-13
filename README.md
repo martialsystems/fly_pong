@@ -268,7 +268,7 @@ Set up a biological clock in milliseconds, map the 32-pixel strip to a real fly'
 
 Save these benchmark metrics into a structured log (`t4t5_physiology.json`). If the current math misses the 1 Hz frequency peak or the 17 ms correlation delay (which it probably will), **that’s a success**. It proves your cell test is working, whereas the Pong game would have hidden those biological flaws.
 
-# Layer 2: Replacing Cartoon Math with Real Physiology
+## Layer 2: Replacing Cartoon Math with Real Physiology
 
 The current motion detector relies on a simplified two-arm multiplication (`Current Pixel × Delayed Neighbor`). Real T4 neurons are much more complex, using three inputs: a delayed preferred side, a fast center, and a delayed suppression side to stop reverse movement.
 
@@ -280,13 +280,13 @@ Instead of trying to simulate a massive, overwhelming brain map (connectome), ma
 
 Once those are added, rerun the Layer 1 test suite. Now you're checking if a model built with real millisecond kinetics actually acts like a biological cell.
 
-# Layer 3: The Live Lab (Where Real Science Happens)
+## Layer 3: The Live Lab (Where Real Science Happens)
 
 If you want true biological proof, you stop using video games entirely. You put a real, tethered fruit fly under a two-photon microscope in an arena, display the exact same visual flash/motion tests, and compare real neural signal traces against your code's traces.
 
 At this level, nobody cares if a paddle hits a ball on a 60 fps digital screen. They care about matching biological data to software data.
 
-# Keep Your Questions Straight
+---
 
 To keep the project grounded, don't mix up what each test is actually measuring:
 
