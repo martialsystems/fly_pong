@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Synthesize a looping fly-court bed: wing buzz under a D-dorian ostinato."""
+"""Synthesize a perfectly looping fly-court bed: wrapping D-dorian arp plus wing buzz."""
 
 from __future__ import annotations
 
@@ -12,95 +12,75 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "fly_pong" / "assets" / "bgm.wav"
 HIT = ROOT / "fly_pong" / "assets" / "hit.wav"
 SR = 22050
-BPM = 96
-BARS = 4
-BEATS = BARS * 4
+# 11025 samples/beat at 22050 Hz is exactly 0.5 s → 120 BPM. 20 beats = 10.0 s.
+BEAT_N = 11025
+BEATS = 20
+N = BEAT_N * BEATS  # 220500
+LOOP_HZ = SR / float(N)  # 0.1 Hz. Every oscillator is k * LOOP_HZ.
 
 
-def _env_pluck(t: np.ndarray, decay: float = 7.5) -> np.ndarray:
-    e = np.exp(-np.maximum(t, 0.0) * decay)
-    e *= (t >= 0.0) & (t < 2.0)
-    return e
+def _harm(freq: float) -> float:
+    """Snap to an integer number of cycles in the loop."""
+    return round(freq / LOOP_HZ) * LOOP_HZ
+
+
+def _tone(freq: float, amp: float) -> np.ndarray:
+    t = np.arange(N, dtype=np.float64) / SR
+    return amp * np.sin(2.0 * np.pi * _harm(freq) * t)
 
 
 def _lute(n: int, freq: float, amp: float) -> np.ndarray:
     t = np.arange(n, dtype=np.float64) / SR
+    f = _harm(freq)
     sig = np.zeros(n, dtype=np.float64)
-    for k, a in enumerate((1.00, 0.42, 0.18, 0.08, 0.03), start=1):
-        sig += a * np.sin(2.0 * np.pi * freq * k * t)
-    return amp * _env_pluck(t) * sig
+    for k, a in enumerate((1.00, 0.40, 0.16, 0.07, 0.03), start=1):
+        sig += a * np.sin(2.0 * np.pi * f * k * t)
+    env = np.exp(-t * 9.0)
+    return amp * env * sig
 
 
-def _tone(n: int, freq: float, amp: float) -> np.ndarray:
-    t = np.arange(n, dtype=np.float64) / SR
-    return amp * np.sin(2.0 * np.pi * freq * t)
+def _add_wrapped(buf: np.ndarray, start: int, chunk: np.ndarray) -> None:
+    n = buf.size
+    i = int(start) % n
+    left = n - i
+    if chunk.size <= left:
+        buf[i : i + chunk.size] += chunk
+        return
+    buf[i:] += chunk[:left]
+    rest = chunk[left:]
+    buf[: rest.size] += rest
+
+
+def _arp_steps(n_steps: int) -> list[float]:
+    """Up-down arpeggiator on D-dorian tetrad D-F-A-C. 8-step cycle divides 40 eighths."""
+    chord = (146.83, 174.61, 220.00, 261.63)  # D3 F3 A3 C4
+    cycle = chord + tuple(reversed(chord))
+    return [cycle[i % len(cycle)] for i in range(n_steps)]
 
 
 def main() -> None:
-    beat = 60.0 / BPM
-    n = int(round(BEATS * beat * SR))
-    t = np.arange(n, dtype=np.float64) / SR
-    rng = np.random.default_rng(7)
+    t = np.arange(N, dtype=np.float64) / SR
 
-    # Quiet fifth drone (D2 + A2).
-    drone = _tone(n, 73.42, 0.07) + _tone(n, 110.00, 0.05)
-    drone *= 0.85 + 0.15 * np.sin(2.0 * np.pi * 0.125 * t)
+    drone = _tone(73.42, 0.07) + _tone(110.00, 0.05)
+    drone *= 0.88 + 0.12 * np.sin(2.0 * np.pi * LOOP_HZ * t)
 
-    # Housefly wingbed: ~196 Hz AM on band-limited noise.
-    noise = rng.normal(0.0, 1.0, n)
-    lp = np.empty(n, dtype=np.float64)
-    acc = 0.0
-    for i, x in enumerate(noise):
-        acc = 0.14 * x + 0.86 * acc
-        lp[i] = acc
-    wing = 0.55 + 0.45 * np.sin(2.0 * np.pi * 196.0 * t)
-    wander = 0.75 + 0.25 * np.sin(2.0 * np.pi * 0.35 * t)
-    buzz = 0.09 * (noise - lp) * wing * wander
+    wing_f = _harm(196.0)
+    wing = 0.55 + 0.45 * np.sin(2.0 * np.pi * wing_f * t)
+    wander = 0.78 + 0.22 * np.sin(2.0 * np.pi * (4 * LOOP_HZ) * t)
+    buzz = 0.08 * np.sin(2.0 * np.pi * wing_f * t)
+    buzz += 0.03 * np.sin(2.0 * np.pi * (2 * wing_f) * t)
+    buzz *= wing * wander
 
-    # D dorian ostinato, one note per beat.
-    dorian = {
-        "D3": 146.83,
-        "E3": 164.81,
-        "F3": 174.61,
-        "G3": 196.00,
-        "A3": 220.00,
-        "C4": 261.63,
-        "D4": 293.66,
-        "A4": 440.00,
-    }
-    pattern = (
-        "D4",
-        "A3",
-        "G3",
-        "F3",
-        "E3",
-        "D3",
-        "A3",
-        "G3",
-        "D4",
-        "F3",
-        "A3",
-        "G3",
-        "E3",
-        "C4",
-        "A3",
-        "D4",
-    )
-    melody = np.zeros(n, dtype=np.float64)
-    beat_n = int(round(beat * SR))
-    for i, name in enumerate(pattern):
-        start = i * beat_n
-        chunk = _lute(min(beat_n * 2, n - start), dorian[name], 0.22)
-        melody[start : start + chunk.size] += chunk
+    # Eighth-note arp: 2 steps per beat, 40 steps, tails wrap into bar 1.
+    steps = _arp_steps(BEATS * 2)
+    step_n = BEAT_N // 2
+    arp = np.zeros(N, dtype=np.float64)
+    tail = step_n * 3
+    for i, freq in enumerate(steps):
+        chunk = _lute(tail, freq, 0.18)
+        _add_wrapped(arp, i * step_n, chunk)
 
-    mix = drone + buzz + melody
-    # Loop crossfade.
-    fade = int(0.18 * SR)
-    ramp = np.linspace(0.0, 1.0, fade)
-    mix[-fade:] *= 1.0 - ramp
-    mix[-fade:] += mix[:fade] * ramp
-    mix[:fade] = mix[-fade:]
-
+    mix = drone + buzz + arp
     peak = float(np.max(np.abs(mix))) or 1.0
     pcm = np.int16(np.clip(mix / peak * 0.72, -1.0, 1.0) * 32767)
     OUT.parent.mkdir(parents=True, exist_ok=True)
@@ -109,7 +89,7 @@ def main() -> None:
         w.setsampwidth(2)
         w.setframerate(SR)
         w.writeframes(pcm.tobytes())
-    print(f"wrote {OUT.relative_to(ROOT)}  {n / SR:.2f}s  peak={peak:.3f}")
+    print(f"wrote {OUT.relative_to(ROOT)}  {N / SR:.2f}s  peak={peak:.3f}")
     _write_hit()
 
 
